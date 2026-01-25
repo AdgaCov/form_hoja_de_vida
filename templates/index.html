@@ -15,59 +15,76 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="">Nombres:</label>
-                    <input type="text">
+                    <input type="text" name="nombres" required>
                 </div>
                 <div class="form-group">
                     <label for="">Apellido Paterno:</label>
-                    <input type="text">
+                    <input type="text" name="ap_pat">
                 </div>
                 <div class="form-group">
                     <label for="">Apellido Materno:</label>
-                    <input type="text">
+                    <input type="text" name="ap_mat">
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
                     <label for="">Cédula de Identidad:</label>
-                    <input type="text">
+                    <input type="text" name="ci" required>
                 </div>
                 <div class="form-group">
                     <label for="">Expedido en:</label>
-                    <input type="text">
+                    <select name="exp" required>
+                        <option value="">Seleccione...</option>
+                        <option value="">LP</option>
+                        <option value="">SC</option>
+                        <option value="">CB</option>
+                        <option value="">OR</option>
+                        <option value="">PT</option>
+                        <option value="">CH</option>
+                        <option value="">TJ</option>
+                        <option value="">BE</option>
+                        <option value="">PA</option>
+                        <option value="">QR</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label for="">Estado Civil:</label>
-                    <input type="text">
+                    <label>Estado Civil:</label>
+                    <select name="est_civil">
+                        <option value="">Soltero(a)</option>
+                        <option value="">Casado(a)</option>
+                        <option value="">Divorciado(a)</option>
+                        <option value="">Viudo(a)</option>
+                    </select>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="">Fecha de Nacimiento:</label>
-                    <input type="date" name="" id="">
+                    <label>Fecha de Nacimiento:</label>
+                    <input type="date" name="fecha_nac" required>
                 </div>
                 <div class="form-group">
-                    <label for="">Lugar:</label>
-                    <input type="text">
+                    <label>Lugar:</label>
+                    <input type="text" name="lugar" required>
                 </div>
                 <div class="form-group">
                     <label for="">Nacionalidad</label>
-                    <input type="text">
+                    <input type="text" name="nacio" required>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group" style="flex: 2;">
                     <label for="">Dirección/ Domicilio:</label>
-                    <input type="text">
+                    <input type="text" name="direccion" required>
                 </div>
                 <div class="form-group">
                     <label for="">Ciudad:</label>
-                    <input type="text">
+                    <input type="text" name="ciudad" required>
                 </div>
                 <div class="form-group">
                     <div class="box">
                         <div>
                             <label for="">Grupo Sanguíneo:</label>
-                            <input type="text">
+                            <input type="text" name="gr_san" required>
                         </div>
                     </div>
                 </div>
@@ -75,21 +92,21 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="">Teléfono Celular:</label>
-                    <input type="number">
+                    <input type="number" name="tcel" required>
                 </div>
                 <div class="form-group">
                     <label for="">Teléfono Fijo:</label>
-                    <input type="number">
+                    <input type="number" name="tfijo">
                 </div>
                 <div class="form-group">
                     <label for="">Correo Electrónico:</label>
-                    <input type="email">
+                    <input type="email" name="correo" required>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
                     <label for="">N° Libreta de Servicio Militar:</label>
-                    <input type="text">
+                    <input type="text" name="n_libser">
                 </div>
             </div>
         </div>

@@ -21,6 +21,7 @@ def init_database():
         nacio TEXT NOT NULL,
         direccion TEXT NOT NULL,
         ciudad TEXT NOT NULL,
+        gr_san TEXT NOT NULL,
         tcel INTEGER NOT NULL,
         tfijo INTEGER
         correo TEXT UNIQUE,
