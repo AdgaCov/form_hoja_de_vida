@@ -285,24 +285,23 @@
                         <th>N° Folio</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
+                <tbody id="tbody-idiomas">
+                    <tr class="fila-idiomas">
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
                         </td>
                         <td>
-                            <input type="number" style="border: none; width: 100%; padding: 4px;">
+                            <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
-                        
                     </tr>
                 </tbody>
             </table>
@@ -689,6 +688,32 @@
                 return newRow;
             }
 
+            const tbodyIdiomas = document.getElementById('tbody-idiomas');
+
+            function createNewRowIdiomas(){
+                const newRow = document.createElement('tr');
+                newRow.className = 'fila-idiomas';
+                newRow.innerHTML = `
+                        <td>
+                            <textarea style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                        <td>
+                            <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                        </td>
+                        <td>
+                            <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                        </td>
+                        <td>
+                            <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                        </td>
+                        <td>
+                            <textarea type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                `;
+                return newRow;
+
+            }
+
             //años
             function calcularAnios(){
                 const filas = tbodyExperiencia.querySelectorAll('.fila-experiencia');
@@ -753,6 +778,11 @@
             const firstRowPaquetes = tbodyPaquetes.querySelector('.fila-paquetes');
             if(firstRowPaquetes){
                 addRowEvents(firstRowPaquetes, tbodyPaquetes, createNewRowPaquetes);
+            }
+
+            const firstRowIdiomas = tbodyIdiomas.querySelector('.fila-idiomas');
+            if(firstRowIdiomas){
+                addRowEvents(firstRowIdiomas, tbodyIdiomas, createNewRowIdiomas);
             }
         });
     </script>
