@@ -151,7 +151,7 @@
     <div class="container">
         <div class="header">III. EXPERIENCIA (Detalle los puestos y instituciones o empresas en las que ejerció funciones, en orden cronológico empezando por la más reciente)</div>
         <div class="form-content">
-            <table id="tabla-informacion">
+            <table id="tabla-experiencia">
                 <thead>
                     <tr>
                         <th>Nombre de la Institución o Empresa</th>
@@ -162,25 +162,25 @@
                         <th>Motivo de retiro o si trabaja actualmente</th>
                     </tr>
                 </thead>
-                <tbody id="tbody-formacion">
-                    <tr class="fila-formacion">
+                <tbody id="tbody-experiencia">
+                    <tr class="fila-experiencia">
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea name="nombre[]" rows="1" class="auto-resize"></textarea>
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea name="puesto[]" rows="1" class="auto-resize"></textarea>
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea name="breve[]" rows="1" class="auto-resize"></textarea>
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <input type="date" name="desde[]" class="fecha-experiencia">
                         </td>
                         <td>
-                            <input type="number" style="border: none; width: 100%; padding: 4px;">
+                            <input type="date" name="hasta[]" class="fecha-experiencia" >
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea name="motivo[]" rows="1" class="auto-resize"></textarea>
                         </td>
                     </tr>
                 </tbody>
@@ -191,12 +191,12 @@
                 <label for="">Resumen de años de servicios: </label>
             </div>
             <div class="form-group">
-                <label for="">Años:</label>
-                <input type="number" disabled>
+                <label>Años:</label>
+                <input type="number" id="total-anios" disabled>
             </div>
             <div class="form-group">
                 <label for="">Meses</label>
-                <input type="number" disabled>
+                <input type="number" id="total-meses" disabled>
             </div>
         </div>
     </div>
@@ -220,13 +220,13 @@
                             <input type="text" style="border: none; width: 100%; padding: 4px;">
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea type="text" name="" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea type="text" name="" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
-                            <input type="number" style="border: none; width: 100%; padding: 4px;">
+                            <textarea type="text" name="" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
                             <input type="text" style="border: none; width: 100%; padding: 4px;">
@@ -457,7 +457,12 @@
                 <input type="date">
         </div>
     </div>
-    <input type="button" value="IMPRIMIR">
+
+    <div style="text-align: center; margin: 20px;">
+        <button type="button" onclick="imprimirPDF()" class="btn-imprimir">IMPRIMIR</button>
+    </div>
+
+
     <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
@@ -553,7 +558,33 @@
                 return completed;
             }
 
-            function createNewRow(){
+            function addRowEvents(row, tbody, createRowFunction){
+                const textareas = row.querySelectorAll('.auto-resize');
+                const allInputs = row.querySelectorAll('input, textarea');
+
+                textareas.forEach(textarea => {
+                    textarea.addEventListener('input', function(){
+                        autoResize(this);
+                    });
+                });
+
+                allInputs.forEach(input => {
+                    input.addEventListener('input', function(){
+                        const currentRow = this.closest('tr');
+                        const isLastRow = currentRow === tbody.lastElementChild;
+
+                        if (isLastRow && isRowComplete(currentRow)){
+                            const newRow = createRowFunction();
+                            tbody.appendChild(newRow);
+                            addRowEvents(newRow, tbody, createRowFunction);
+                        }
+                    });
+                });
+            }
+
+            const tbodyFormacion = document.getElementById('tbody-formacion');
+
+            function createNewRowFormacion(){
                 const newRow = document.createElement('tr');
                 newRow.className = 'fila-formacion';
                 newRow.innerHTML = `
@@ -576,32 +607,103 @@
                 return newRow;
             }
 
-            function addRowEvents(row){
-                const textareas = row.querySelectorAll('.auto-resize');
-                const allInputs = row.querySelectorAll('input, textarea');
+            const tbodycursos = document.getElementById('tbody-cursos');
 
-                textareas.forEach(textarea => {
-                    textarea.addEventListener('input', function(){
-                        autoResize(this);
-                    });
+            function createNewRowCursos(){
+                const newRow = document.createElement('tr');
+                newRow.className = 'fila-cursos';
+                newRow.innerHTML = `
+                
+                `
+            }
+            const firstRowFormacion = tbodyFormacion.querySelector('.fila-formacion');
+            if(firstRowFormacion){
+                addRowEvents(firstRowFormacion, tbodyFormacion, createNewRowFormacion)
+            }
+            
+            const tbodyExperiencia = document.getElementById('tbody-experiencia');
+
+            function createNewRowExperiencia(){
+                const newRow = document.createElement('tr');
+                newRow.className = 'fila-experiencia';
+                newRow.innerHTML = `
+                    <td>
+                        <textarea name="nombre[]" rows="1" class="auto-resize"></textarea>
+                    </td>
+                    <td>
+                        <textarea name="puesto[]" rows="1" class="auto-resize"></textarea>
+                    </td>
+                    <td>
+                        <textarea name="breve[]" rows="1" class="auto-resize"></textarea>
+                    </td>
+                    <td>
+                        <input type="date" name="desde[]">
+                    </td>
+                    <td>
+                        <input type="date" name="hasta[]">
+                    </td>
+                    <td>
+                        <textarea name="motivo[]" rows="1" class="auto-resize"></textarea>
+                    </td>
+                `;
+                return newRow;
+            }
+
+            //años
+            function calcularAnios(){
+                const filas = tbodyExperiencia.querySelectorAll('.fila-experiencia');
+                let totalDias = 0;
+
+                filas.forEach(fila => {
+                    const inputDesde = fila.querySelector('input[name="desde[]"]');
+                    const inputHasta = fila.querySelector('input[name="hasta[]"]');
+                    
+                    if (!inputDesde || !inputHasta) return;
+                    
+                    const desde = inputDesde.value;
+                    const hasta = inputHasta.value;
+
+                    if (desde && hasta){
+                        const fechaDesde = new Date(desde);
+                        const fechaHasta = new Date(hasta);
+
+                        if(fechaHasta >= fechaDesde){
+                            const diffTime = fechaHasta - fechaDesde;
+                            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                            totalDias += diffDays;
+                        }
+                    }
                 });
 
-                allInputs.forEach(input => {
-                    input.addEventListener('input', function(){
-                        const currentRow = this.closest('tr');
-                        const isLastRow = currentRow === tbody.lastElementChild;
+                // Calcular meses y años
+                const totalMeses = Math.floor(totalDias / 30.44); // Promedio más exacto de días por mes
+                const anios = Math.floor(totalMeses / 12);
+                const meses = totalMeses % 12;
 
-                        if (isLastRow && isRowComplete(currentRow)){
-                            const newRow = createNewRow();
-                            tbody.appendChild(newRow);
-                            addRowEvents(newRow);
-                        }
+                // Asignar valores a los inputs
+                const totalAniosInput = document.getElementById('total-anios');
+                const totalMesesInput = document.getElementById('total-meses');
+
+                if(totalAniosInput) totalAniosInput.value = anios;
+                if(totalMesesInput) totalMesesInput.value = meses;
+            }
+
+            function addRowEventsExperiencia(row){
+                addRowEvents(row, tbodyExperiencia, createNewRowExperiencia);
+
+                const fechas = row.querySelectorAll('input[name="desde[]"], input[name="hasta[]"]');
+                fechas.forEach(fecha => {
+                    fecha.addEventListener('change', function(){
+                        calcularAnios();
+                    });
+                    fecha.addEventListener('input', function(){
+                        calcularAnios();
                     });
                 });
             }
-            const firstRow = tbody.querySelector('.fila-formacion');
-            if(firstRow){
-                addRowEvents(firstRow);
+            const firstRowExperiencia = tbodyExperiencia.querySelector('.fila-experiencia');
+            if(firstRowExperiencia){
+                addRowEventsExperiencia(firstRowExperiencia);
             }
         });
     </script>
