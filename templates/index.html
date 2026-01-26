@@ -7,6 +7,17 @@
     <title>FORMULARIO | HOJA DE VIDA</title>
 </head>
 <body>
+     <nav style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; ">
+        <div class="imagen">
+            <img src="{{url_for('static', filename='image.png')}}" alt="LOGO MTSCFYG" style="width: 250px;">
+        </div>
+        <div>
+            <a href="" style="text-decoration: none; color: #003366; font-weight: bold; padding: 8px 15px; border: 2px solid #003366; border-radius: 5px;">Iniciar Sesión</a>
+        </div>
+     </nav>
+    <div style="display: flex; align-items: center; justify-content: center;">
+        <label style="font-size: 20px;"><strong>FORMULARIO HOJA DE VIDA</strong></label>
+    </div>
     <div class="container">
         <div class="header">
             I. DATOS PERSONALES
@@ -376,17 +387,19 @@
     <div class="container">
         <div class="header">IX. REGISTRO PROFESIONAL DEL COLEGIO O ENTIDAD PÚBLICA (Si corresponde):</div>
         <div class="form-content">
-            <label for="">Nombre:</label>
-            <input type="text" style="border: none; width: 100%; padding: 4px;">
-            <label for="">N° de Registro</label>
-            <input type="text" style="border: none; width: 100%; padding: 4px;">
+            <div class="form-group">
+                <label for="">Nombre:</label>
+                <textarea style="color: #000; width: 100%; padding: 4px;"></textarea>
+                <label style="margin-top: 5px;">N° de Registro</label>
+                <input type="text" style="width: 30%; padding: 4px;">
+            </div>
         </div>
     </div>
     <div class="container">
         <div class="header">X. PRETENSIÓN SALARIAL:</div>
         <div class="form-content">
             <label for="">Bs:</label>
-            <input type="text" style="border: none; width: 100%; padding: 4px;">
+            <input type="text" style="font-size: 15px; width: 50%; padding: 4px;">
         </div>
     </div>
     <div class="container">
@@ -394,71 +407,77 @@
             XI. DE LAS INCOMPATIBILIDADES O IMPEDIMENTOS
         </div>
         <div class="form-content">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="">a) ¿Tiene vinculación matrimonial, grado de parentesco hasta el cuarto grado de consanguinidad y segundo de afinidad con algún miembro del Ministerio de Turismo sostenible, culturas, folklore y Gastronomía?.</label>
-                </div>
-                <div class="form-group">
-                    <input type="checkbox">
-                </div>
-                <div class="form-group">
-                    <input type="checkbox">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="">b) ¿Tiene otra actividad pública remunerada a tiempo completo; actividad privada, directiva sindical, civica, corporativa o gremial, con remuneración o sin ella? (se exceptua la actividad docente universitaria).</label>
-                </div>
-                <div class="form-group">
-                    <input type="checkbox">
-                </div>
-                <div class="form-group">
-                    <input type="checkbox">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="">c) ¿Percibe renta de vejez u de otro tipo, sin resolución que suspenda legalmente la percepción de dichas rentas?</label>
-                </div>
-                <div class="form-group">
-                    <input type="checkbox">
-                </div>
-                <div class="form-group">
-                    <input type="checkbox">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="">d) ¿Fue destituido mediante proceso administrativo de alguno de los Organos del Estado; tiene pliego de cargo ejecutoriado o sentencia judicial por responsabilidad civil contra el Estado; o, existe en su contra Sentencia Condenatoria Ejecutoriada a pena privativa de libertad?</label>
-                </div>
-                <div class="form-group">
-                    <input type="checkbox">
-                </div>
-                <div class="form-group">
-                    <input type="checkbox">
-                </div>
-            </div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <td>PREGUNTA</td>
+                        <td>SI</td>
+                        <td>NO</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label><strong>a) ¿Tiene vinculación matrimonial, grado de parentesco hasta el cuarto grado de consanguinidad y segundo de afinidad con algún miembro del Ministerio de Turismo sostenible, culturas, folklore y Gastronomía?.</label></strong></label>
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="radio" name="prg1" style="border: none; width: 80%; height: 20px;">
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="radio" name="prg1" style="border: none; width: 80%; height: 20px;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label><strong>b) ¿Tiene otra actividad pública remunerada a tiempo completo; actividad privada, directiva sindical, civica, corporativa o gremial, con remuneración o sin ella? (se exceptua la actividad docente universitaria).</label></strong></label>
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="radio" name="prg2" style="border: none; width: 80%; height: 20px;">
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="radio" name="prg2" style="border: none; width: 80%; height: 20px;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label><strong>c) ¿Percibe renta de vejez u de otro tipo, sin resolución que suspenda legalmente la percepción de dichas rentas?</label></strong></label>
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="radio" name="prg3" style="border: none; width: 80%; height: 20px;">
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="radio" name="prg3" style="border: none; width: 80%; height: 20px;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label><strong>d) ¿Fue destituido mediante proceso administrativo de alguno de los Organos del Estado; tiene pliego de cargo ejecutoriado o sentencia judicial por responsabilidad civil contra el Estado; o, existe en su contra Sentencia Condenatoria Ejecutoriada a pena privativa de libertad?</label></strong></label>
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="radio" name="prg4" style="border: none; width: 80%; height: 20px;">
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="radio" name="prg4" style="border: none; width: 80%; height: 20px;">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
     <div class="container">
         <div class="form-content">
-            <label for=""><b>Declaración Jurada</b></label>
-            <p>Por lo expuesto declaro: <br>
+            <label style="font-size: 20px;"><b><i>Declaración Jurada</i></b></label>
+            <p><i>Por lo expuesto declaro: <br>
                 Que toda la información expuesta en el presente formulario es verdadera y que la documentación presentada como respaldo es fidedigna.
                 
-                Si el Ministerio de Turismo Sostenible, Culturas y Folklore y Gastronomía  evidencia falsedad en la información, se procederá de acuerdo a Ley.</p>
-                <p>........................ <br> Firma </p>
+                Si el Ministerio de Turismo Sostenible, Culturas y Folklore y Gastronomía  evidencia falsedad en la información, se procederá de acuerdo a Ley.</i></p><br><br>
+                <p style="display: flex; text-align: center; justify-content: center; font-size: 15px;">.................................... <br> Firma </p>
                 <label for="">Lugar:</label>
                 <input type="text">
                 <label for="">Fecha:</label>
                 <input type="date">
         </div>
     </div>
-
-    <div style="text-align: center; margin: 20px;">
-        <button type="button" onclick="imprimirPDF()" class="btn-imprimir">IMPRIMIR</button>
-    </div>
-
 
     <style>
         body{
