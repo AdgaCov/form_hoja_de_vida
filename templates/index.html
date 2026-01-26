@@ -114,7 +114,7 @@
     <div class="container">
         <div class="header">II. FORMACIÓN ACADÉMICA</div>
         <div class="form-content">
-            <table>
+            <table id="tabla-informacion">
                 <thead>
                     <tr>
                         <th>Detalle (Mencionar el nivel: Estudios Secundarios, Bachiller, Técnico Superior, Técnico Medio, Estudiante Universitario, Profesional, Postgrado)</th>
@@ -125,24 +125,24 @@
                         <th>N° Folio</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
+                <tbody id="tbody-formacion">
+                    <tr class="fila-formacion">
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea name="detalle[]" rows="1" class="auto-resize"></textarea>
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea name="institucion[]" rows="1" class="auto-resize"></textarea>
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea name="grado[]" rows="1" class="auto-resize"></textarea>
                         </td>
                         <td>
-                            <input type="number" style="border: none; width: 100%; padding: 4px;">
+                            <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <input type="text"
+                            name="n_folio[]" style="border: none; width: 100%; padding: 4px;">
                         </td>
-                        
                     </tr>
                 </tbody>
             </table>
@@ -151,7 +151,7 @@
     <div class="container">
         <div class="header">III. EXPERIENCIA (Detalle los puestos y instituciones o empresas en las que ejerció funciones, en orden cronológico empezando por la más reciente)</div>
         <div class="form-content">
-            <table>
+            <table id="tabla-informacion">
                 <thead>
                     <tr>
                         <th>Nombre de la Institución o Empresa</th>
@@ -162,8 +162,8 @@
                         <th>Motivo de retiro o si trabaja actualmente</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
+                <tbody id="tbody-formacion">
+                    <tr class="fila-formacion">
                         <td>
                             <input type="text" style="border: none; width: 100%; padding: 4px;">
                         </td>
@@ -522,6 +522,88 @@
             border: 1px solid #000;
             padding: 8px;
         }
+        textarea{
+            border: none;
+            width: 100%;
+            padding: 4px;
+            resize: none;
+            overflow: hidden;
+            font-family: inherit;
+            font-size: inherit;
+        }
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            const tbody = document.getElementById('tbody-formacion');
+
+            function autoResize(textarea){
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + 'px';
+            }
+
+            function isRowComplete(row){
+                const inputs = row.querySelectorAll('input, textarea');
+                let completed = true;
+                inputs.forEach(input => {
+                    if(input.value.trim() === ''){
+                        completed = false;
+                    }
+                });
+                return completed;
+            }
+
+            function createNewRow(){
+                const newRow = document.createElement('tr');
+                newRow.className = 'fila-formacion';
+                newRow.innerHTML = `
+                    <td>
+                        <textarea class="auto-resize" name="detalle[]" rows="1" style="border: none; width: 100%; padding: 4px; resize: none; overflow: hidden; font-family: inherit; font-size: inherit;"></textarea>
+                    </td>
+                    <td>
+                        <textarea class="auto-resize" name="institucion[]" rows="1" style="border: none; width: 100%; padding: 4px; resize: none; overflow: hidden; font-family: inherit; font-size: inherit;"></textarea>
+                    </td>
+                    <td>
+                        <textarea class="auto-resize" name="grado[]" rows="1" style="border: none; width: 100%; padding: 4px; resize: none; overflow: hidden; font-family: inherit; font-size: inherit;"></textarea>
+                    </td>
+                    <td>
+                        <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
+                    </td>
+                    <td>
+                        <input type="text" name="n_folio[]" style="border: none; width: 100%; padding: 4px;">
+                    </td>
+                `;
+                return newRow;
+            }
+
+            function addRowEvents(row){
+                const textareas = row.querySelectorAll('.auto-resize');
+                const allInputs = row.querySelectorAll('input, textarea');
+
+                textareas.forEach(textarea => {
+                    textarea.addEventListener('input', function(){
+                        autoResize(this);
+                    });
+                });
+
+                allInputs.forEach(input => {
+                    input.addEventListener('input', function(){
+                        const currentRow = this.closest('tr');
+                        const isLastRow = currentRow === tbody.lastElementChild;
+
+                        if (isLastRow && isRowComplete(currentRow)){
+                            const newRow = createNewRow();
+                            tbody.appendChild(newRow);
+                            addRowEvents(newRow);
+                        }
+                    });
+                });
+            }
+            const firstRow = tbody.querySelector('.fila-formacion');
+            if(firstRow){
+                addRowEvents(firstRow);
+            }
+        });
+    </script>
 </body>
 </html>
