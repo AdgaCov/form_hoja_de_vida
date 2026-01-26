@@ -288,7 +288,7 @@
                 <tbody id="tbody-idiomas">
                     <tr class="fila-idiomas">
                         <td>
-                            <textarea style="border: none; width: 100%; padding: 4px;"></textarea>
+                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
                             <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
@@ -300,7 +300,7 @@
                             <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
                         </td>
                         <td>
-                            <textarea type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                     </tr>
                 </tbody>
@@ -320,22 +320,22 @@
                         <th>N° Folio</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
+                <tbody id="tbody-docencia">
+                    <tr class="fila-docencia">
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <input type="number" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
                             <input type="number" style="border: none; width: 100%; padding: 4px;">
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                     </tr>
                 </tbody>
@@ -354,21 +354,20 @@
                         <th>Teléfono</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
+                <tbody id="tbody-ref">
+                    <tr class="fila-ref">
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                        <td>
+                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                        <td>
+                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
                             <input type="text" style="border: none; width: 100%; padding: 4px;">
                         </td>
-                        <td>
-                            <input type="number" style="border: none; width: 100%; padding: 4px;">
-                        </td>
-                        <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
-                        </td>
-                        
                     </tr>
                 </tbody>
             </table>
@@ -695,7 +694,7 @@
                 newRow.className = 'fila-idiomas';
                 newRow.innerHTML = `
                         <td>
-                            <textarea style="border: none; width: 100%; padding: 4px;"></textarea>
+                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
                             <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
@@ -707,11 +706,57 @@
                             <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
                         </td>
                         <td>
-                            <textarea type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                 `;
                 return newRow;
+            }
 
+            const tbodyDocencia = document.getElementById('tbody-docencia');
+
+            function createNewRowDocencia(){
+                const newRow = document.createElement('tr');
+                newRow.className = 'fila-docencia';
+                newRow.innerHTML = `
+                        <td>
+                            <input type="number" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
+                        </td>
+                        <td>
+                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                        <td>
+                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                        <td>
+                            <input type="number" style="border: none; width: 100%; padding: 4px;">
+                        </td>
+                        <td>
+                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                `;
+                return newRow;
+            }
+
+            const tbodyRef = document.getElementById('tbody-ref');
+
+            function createNewRowRef(){
+                const newRow = document.createElement('tr');
+                newRow.className = 'fila-ref';
+                newRow.innerHTML = `
+                        <td>
+                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                        <td>
+                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                        <td>
+                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                        <td>
+                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                        </td>
+                `;
+                return newRow;
             }
 
             //años
@@ -784,6 +829,17 @@
             if(firstRowIdiomas){
                 addRowEvents(firstRowIdiomas, tbodyIdiomas, createNewRowIdiomas);
             }
+
+            const firstRowDocencia = tbodyDocencia.querySelector('.fila-docencia');
+            if(firstRowDocencia){
+                addRowEvents(firstRowDocencia, tbodyDocencia, createNewRowDocencia);
+            }
+
+            const firstRowRef = tbodyRef.querySelector('.fila-ref');
+            if(firstRowRef){
+                addRowEvents(firstRowRef, tbodyRef, createNewRowRef);
+            }
+
         });
     </script>
 </body>
