@@ -214,24 +214,23 @@
                         <th>Duración en Horas</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
+                <tbody id="tbody-cursos">
+                    <tr class="fila-cursos">
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;">
                         </td>
                         <td>
-                            <textarea type="text" name="" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            <textarea type="text" name="cap[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
-                            <textarea type="text" name="" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            <textarea type="text" name="inst[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
-                            <textarea type="text" name="" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            <textarea type="text" name="n_cap[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <input type="number" name="horas[]" style="border: none; width: 100%; padding: 4px;">
                         </td>
-                        
                     </tr>
                 </tbody>
             </table>
@@ -253,16 +252,16 @@
                 <tbody>
                     <tr>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <input type="radio" name="nivel" style="border: none; width: 100%; padding: 4px;">
                         </td>
                         <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            <input type="radio" name="nivel" style="border: none; width: 100%; padding: 4px;">
                         </td>
                         <td>
-                            <input type="number" style="border: none; width: 100%; padding: 4px;">
+                            <input type="radio" name="nivel" style="border: none; width: 100%; padding: 4px;">
                         </td>
                         <td>
                             <input type="text" style="border: none; width: 100%; padding: 4px;">
@@ -607,14 +606,30 @@
                 return newRow;
             }
 
-            const tbodycursos = document.getElementById('tbody-cursos');
+            const tbodyCursos = document.getElementById('tbody-cursos');
 
             function createNewRowCursos(){
                 const newRow = document.createElement('tr');
                 newRow.className = 'fila-cursos';
                 newRow.innerHTML = `
-                
-                `
+                        <td>
+                            <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;">
+                        </td>
+                        <td>
+                            <textarea type="text" name="cap[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                        <td>
+                            <textarea type="text" name="inst[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                        <td>
+                            <textarea type="text" name="n_cap[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                        </td>
+                        <td>
+                            <input type="number" name="horas[]" style="border: none; width: 100%; padding: 4px;">
+                        </td>
+                `;
+                return newRow;
+
             }
             const firstRowFormacion = tbodyFormacion.querySelector('.fila-formacion');
             if(firstRowFormacion){
@@ -649,6 +664,7 @@
                 return newRow;
             }
 
+
             //años
             function calcularAnios(){
                 const filas = tbodyExperiencia.querySelectorAll('.fila-experiencia');
@@ -675,12 +691,10 @@
                     }
                 });
 
-                // Calcular meses y años
-                const totalMeses = Math.floor(totalDias / 30.44); // Promedio más exacto de días por mes
+                const totalMeses = Math.floor(totalDias / 30.44); 
                 const anios = Math.floor(totalMeses / 12);
                 const meses = totalMeses % 12;
 
-                // Asignar valores a los inputs
                 const totalAniosInput = document.getElementById('total-anios');
                 const totalMesesInput = document.getElementById('total-meses');
 
@@ -701,9 +715,15 @@
                     });
                 });
             }
+            
             const firstRowExperiencia = tbodyExperiencia.querySelector('.fila-experiencia');
             if(firstRowExperiencia){
                 addRowEventsExperiencia(firstRowExperiencia);
+            }
+
+            const firstRowCursos = tbodyCursos.querySelector('.fila-cursos');
+            if(firstRowCursos){
+                addRowEvents(firstRowCursos, tbodyCursos, createNewRowCursos);
             }
         });
     </script>
