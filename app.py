@@ -18,7 +18,9 @@ def get_db_connection():
 
 def init_database():
     conn = get_db_connection()
-    conn.execute(
+    cursor = conn.cursor()
+
+    cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS datos(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,7 +44,7 @@ def init_database():
 """
     )
 
-    conn.execute(
+    cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS experiencia(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,7 +60,7 @@ def init_database():
     """
     )
 
-    conn.execute(
+    cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,6 +69,15 @@ def init_database():
         );
         """
     )
+
+    cursor.execute("SELECT * FROM users WHERE username = ?",('admin',))
+    if cursor.fetchone() is None:
+        hashed_password = generate_password_hash ('culturas')
+        cursor.execute(
+            "INSERT INTO users (username, password) VALUES (?, ?)", ('admin', hashed_password)
+        )
+        print("Usuario por defecto creado")
+
 
     conn.commit()
     conn.close()
@@ -81,7 +92,7 @@ class User(UserMixin):
 
     @staticmethod
     def get_by_id(user_id):
-        conn = get_db_connection
+        conn = get_db_connection()
         user = conn.execute('SELECT * FROM users WHERE id=?',(user_id, )).fetchone()
         conn.close()
         if user:
@@ -114,7 +125,7 @@ def login():
         if user and check_password_hash(user.password, password):
             login_user(user)
             flash('Inicio de sesión exitoso','success')
-            return redirect(url_for())
+            return redirect(url_for('usuarios'))
         else:
             flash('Credenciales inválidas','danger')
     return render_template('login.html')
@@ -125,6 +136,11 @@ def logout():
     logout_user()
     flash('Has cerrado sesión','info')
     return redirect(url_for('login'))
+
+@app.route('/usuarios')
+@login_required
+def usuarios():
+    return render_template("usuarios.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

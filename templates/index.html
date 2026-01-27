@@ -18,466 +18,472 @@
     <div style="display: flex; align-items: center; justify-content: center;">
         <label style="font-size: 20px;"><strong>FORMULARIO HOJA DE VIDA</strong></label>
     </div>
-    <div class="container">
-        <div class="header">
-            I. DATOS PERSONALES
-        </div>
-        <div class="form-content">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="">Nombres:</label>
-                    <input type="text" name="nombres" required>
-                </div>
-                <div class="form-group">
-                    <label for="">Apellido Paterno:</label>
-                    <input type="text" name="ap_pat">
-                </div>
-                <div class="form-group">
-                    <label for="">Apellido Materno:</label>
-                    <input type="text" name="ap_mat">
-                </div>
+    <form method="post" action="">
+        <div class="container">
+            <div class="header">
+                I. DATOS PERSONALES
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="">Cédula de Identidad:</label>
-                    <input type="text" name="ci" required>
+            <div class="form-content">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="">Nombres:</label>
+                        <input type="text" name="nombres" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Apellido Paterno:</label>
+                        <input type="text" name="ap_pat">
+                    </div>
+                    <div class="form-group">
+                        <label for="">Apellido Materno:</label>
+                        <input type="text" name="ap_mat">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="">Expedido en:</label>
-                    <select name="exp" required>
-                        <option value="">Seleccione...</option>
-                        <option value="">LP</option>
-                        <option value="">SC</option>
-                        <option value="">CB</option>
-                        <option value="">OR</option>
-                        <option value="">PT</option>
-                        <option value="">CH</option>
-                        <option value="">TJ</option>
-                        <option value="">BE</option>
-                        <option value="">PA</option>
-                        <option value="">QR</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="">Cédula de Identidad:</label>
+                        <input type="text" name="ci" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Expedido en:</label>
+                        <select name="exp" required>
+                            <option value="">Seleccione...</option>
+                            <option value="">LP</option>
+                            <option value="">SC</option>
+                            <option value="">CB</option>
+                            <option value="">OR</option>
+                            <option value="">PT</option>
+                            <option value="">CH</option>
+                            <option value="">TJ</option>
+                            <option value="">BE</option>
+                            <option value="">PA</option>
+                            <option value="">QR</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado Civil:</label>
+                        <select name="est_civil">
+                            <option value="">Soltero(a)</option>
+                            <option value="">Casado(a)</option>
+                            <option value="">Divorciado(a)</option>
+                            <option value="">Viudo(a)</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Estado Civil:</label>
-                    <select name="est_civil">
-                        <option value="">Soltero(a)</option>
-                        <option value="">Casado(a)</option>
-                        <option value="">Divorciado(a)</option>
-                        <option value="">Viudo(a)</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha de Nacimiento:</label>
+                        <input type="date" name="fecha_nac" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Lugar:</label>
+                        <input type="text" name="lugar" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Nacionalidad</label>
+                        <input type="text" name="nacio" required>
+                    </div>
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Fecha de Nacimiento:</label>
-                    <input type="date" name="fecha_nac" required>
-                </div>
-                <div class="form-group">
-                    <label>Lugar:</label>
-                    <input type="text" name="lugar" required>
-                </div>
-                <div class="form-group">
-                    <label for="">Nacionalidad</label>
-                    <input type="text" name="nacio" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group" style="flex: 2;">
-                    <label for="">Dirección/ Domicilio:</label>
-                    <input type="text" name="direccion" required>
-                </div>
-                <div class="form-group">
-                    <label for="">Ciudad:</label>
-                    <input type="text" name="ciudad" required>
-                </div>
-                <div class="form-group">
-                    <div class="box">
-                        <div>
-                            <label for="">Grupo Sanguíneo:</label>
-                            <input type="text" name="gr_san" required>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="">Dirección/ Domicilio:</label>
+                        <input type="text" name="direccion" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Ciudad:</label>
+                        <input type="text" name="ciudad" required>
+                    </div>
+                    <div class="form-group">
+                        <div class="box">
+                            <div>
+                                <label for="">Grupo Sanguíneo:</label>
+                                <input type="text" name="gr_san" required>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="">Teléfono Celular:</label>
+                        <input type="number" name="tcel" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Teléfono Fijo:</label>
+                        <input type="number" name="tfijo">
+                    </div>
+                    <div class="form-group">
+                        <label for="">Correo Electrónico:</label>
+                        <input type="email" name="correo" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="">N° Libreta de Servicio Militar:</label>
+                        <input type="text" name="n_libser">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="header">II. FORMACIÓN ACADÉMICA</div>
+            <div class="form-content">
+                <table id="tabla-informacion">
+                    <thead>
+                        <tr>
+                            <th>Detalle (Mencionar el nivel: Estudios Secundarios, Bachiller, Técnico Superior, Técnico Medio, Estudiante Universitario, Profesional, Postgrado)</th>
+                            <th>Institución</th>
+                            <th>Grado o título obtenido <br>
+                                (Titulado o Conclusión de Estudios o En curso)</th>
+                            <th>Año</th>
+                            <th>N° Folio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-formacion">
+                        <tr class="fila-formacion">
+                            <td>
+                                <textarea name="detalle[]" rows="1" class="auto-resize"></textarea>
+                            </td>
+                            <td>
+                                <textarea name="institucion[]" rows="1" class="auto-resize"></textarea>
+                            </td>
+                            <td>
+                                <textarea name="grado[]" rows="1" class="auto-resize"></textarea>
+                            </td>
+                            <td>
+                                <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
+                            </td>
+                            <td>
+                                <input type="text"
+                                name="n_folio[]" style="border: none; width: 100%; padding: 4px;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="container">
+            <div class="header">III. EXPERIENCIA (Detalle los puestos y instituciones o empresas en las que ejerció funciones, en orden cronológico empezando por la más reciente)</div>
+            <div class="form-content">
+                <table id="tabla-experiencia">
+                    <thead>
+                        <tr>
+                            <th>Nombre de la Institución o Empresa</th>
+                            <th>Puesto</th>
+                            <th>Breve descripción de funciones</th>
+                            <th>Desde</th>
+                            <th>Hasta</th>
+                            <th>Motivo de retiro o si trabaja actualmente</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-experiencia">
+                        <tr class="fila-experiencia">
+                            <td>
+                                <textarea name="nombre[]" rows="1" class="auto-resize"></textarea>
+                            </td>
+                            <td>
+                                <textarea name="puesto[]" rows="1" class="auto-resize"></textarea>
+                            </td>
+                            <td>
+                                <textarea name="breve[]" rows="1" class="auto-resize"></textarea>
+                            </td>
+                            <td>
+                                <input type="date" name="desde[]" class="fecha-experiencia">
+                            </td>
+                            <td>
+                                <input type="date" name="hasta[]" class="fecha-experiencia" >
+                            </td>
+                            <td>
+                                <textarea name="motivo[]" rows="1" class="auto-resize"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="">Teléfono Celular:</label>
-                    <input type="number" name="tcel" required>
+                    <label for="">Resumen de años de servicios: </label>
                 </div>
                 <div class="form-group">
-                    <label for="">Teléfono Fijo:</label>
-                    <input type="number" name="tfijo">
+                    <label>Años:</label>
+                    <input type="number" id="total-anios" disabled>
                 </div>
                 <div class="form-group">
-                    <label for="">Correo Electrónico:</label>
-                    <input type="email" name="correo" required>
+                    <label for="">Meses</label>
+                    <input type="number" id="total-meses" disabled>
                 </div>
             </div>
-            <div class="form-row">
+        </div>
+        
+        <div class="container">
+            <div class="header">IV. CURSOS, SEMINARIOS Y TALLERES DE CAPACITACIÓN (Señale los cursos a los que ha asistido, prioritariamente aquellos relacionados con el cargo al cual postula)</div>
+            <div class="form-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Año</th>
+                            <th>Área de Capacitaciones</th>
+                            <th>Institución</th>
+                            <th>Nombre de la Capacitación</th>
+                            <th>Duración en Horas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-cursos">
+                        <tr class="fila-cursos">
+                            <td>
+                                <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;">
+                            </td>
+                            <td>
+                                <textarea type="text" name="cap[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <textarea type="text" name="inst[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <textarea type="text" name="n_cap[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <input type="number" name="horas[]" style="border: none; width: 100%; padding: 4px;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="container">
+            <div class="header">V. MANEJO DE PAQUETES INFORMÁTICOS</div>
+            <div class="form-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>PAQUETE Ms Office</th>
+                            <th>REGULAR</th>
+                            <th>BUENO</th>
+                            <th>MUY BUENO</th>
+                            <th>N° Folio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-paquetes">
+                        <tr class="fila-paquetes">
+                            <td>
+                                <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <input type="radio" name="nivel" style="border: none; padding: 4px; width: 100%; height: 20px;">
+                            </td>
+                            <td>
+                                <input type="radio" name="nivel" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                            </td>
+                            <td>
+                                <input type="radio" name="nivel" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                            </td>
+                            <td>
+                                <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            </td>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="container">
+            <div class="header">VI. IDIOMAS</div>
+            <div class="form-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>IDIOMAS</th>
+                            <th>Lectura</th>
+                            <th>Escritura</th>
+                            <th>Conversación</th>
+                            <th>N° Folio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-idiomas">
+                        <tr class="fila-idiomas">
+                            <td>
+                                <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                            </td>
+                            <td>
+                                <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                            </td>
+                            <td>
+                                <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                            </td>
+                            <td>
+                                <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="container">
+            <div class="header">VII. DOCENCIA O EXPERIENCIA ACADÉMICA</div>
+            <div class="form-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Año</th>
+                            <th>Institución</th>
+                            <th>Nombre del Curso</th>
+                            <th>Duración en horas</th>
+                            <th>N° Folio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-docencia">
+                        <tr class="fila-docencia">
+                            <td>
+                                <input type="number" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
+                            </td>
+                            <td>
+                                <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <input type="number" style="border: none; width: 100%; padding: 4px;">
+                            </td>
+                            <td>
+                                <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="container">
+            <div class="header">VIII. REFERENCIAS PERSONALES (Señale al menos tres referencias laborales)</div>
+            <div class="form-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre y Apellido</th>
+                            <th>Institución</th>
+                            <th>Puesto</th>
+                            <th>Teléfono</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-ref">
+                        <tr class="fila-ref">
+                            <td>
+                                <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <input type="text" style="border: none; width: 100%; padding: 4px;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="container">
+            <div class="header">IX. REGISTRO PROFESIONAL DEL COLEGIO O ENTIDAD PÚBLICA (Si corresponde):</div>
+            <div class="form-content">
                 <div class="form-group">
-                    <label for="">N° Libreta de Servicio Militar:</label>
-                    <input type="text" name="n_libser">
+                    <label for="">Nombre:</label>
+                    <textarea style="color: #000; width: 100%; padding: 4px;"></textarea>
+                    <label style="margin-top: 5px;">N° de Registro</label>
+                    <input type="text" style="width: 30%; padding: 4px;">
                 </div>
             </div>
         </div>
-    </div>
-    <div class="container">
-        <div class="header">II. FORMACIÓN ACADÉMICA</div>
-        <div class="form-content">
-            <table id="tabla-informacion">
-                <thead>
-                    <tr>
-                        <th>Detalle (Mencionar el nivel: Estudios Secundarios, Bachiller, Técnico Superior, Técnico Medio, Estudiante Universitario, Profesional, Postgrado)</th>
-                        <th>Institución</th>
-                        <th>Grado o título obtenido <br>
-                            (Titulado o Conclusión de Estudios o En curso)</th>
-                        <th>Año</th>
-                        <th>N° Folio</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody-formacion">
-                    <tr class="fila-formacion">
-                        <td>
-                            <textarea name="detalle[]" rows="1" class="auto-resize"></textarea>
-                        </td>
-                        <td>
-                            <textarea name="institucion[]" rows="1" class="auto-resize"></textarea>
-                        </td>
-                        <td>
-                            <textarea name="grado[]" rows="1" class="auto-resize"></textarea>
-                        </td>
-                        <td>
-                            <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
-                        </td>
-                        <td>
-                            <input type="text"
-                            name="n_folio[]" style="border: none; width: 100%; padding: 4px;">
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="container">
-        <div class="header">III. EXPERIENCIA (Detalle los puestos y instituciones o empresas en las que ejerció funciones, en orden cronológico empezando por la más reciente)</div>
-        <div class="form-content">
-            <table id="tabla-experiencia">
-                <thead>
-                    <tr>
-                        <th>Nombre de la Institución o Empresa</th>
-                        <th>Puesto</th>
-                        <th>Breve descripción de funciones</th>
-                        <th>Desde</th>
-                        <th>Hasta</th>
-                        <th>Motivo de retiro o si trabaja actualmente</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody-experiencia">
-                    <tr class="fila-experiencia">
-                        <td>
-                            <textarea name="nombre[]" rows="1" class="auto-resize"></textarea>
-                        </td>
-                        <td>
-                            <textarea name="puesto[]" rows="1" class="auto-resize"></textarea>
-                        </td>
-                        <td>
-                            <textarea name="breve[]" rows="1" class="auto-resize"></textarea>
-                        </td>
-                        <td>
-                            <input type="date" name="desde[]" class="fecha-experiencia">
-                        </td>
-                        <td>
-                            <input type="date" name="hasta[]" class="fecha-experiencia" >
-                        </td>
-                        <td>
-                            <textarea name="motivo[]" rows="1" class="auto-resize"></textarea>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="">Resumen de años de servicios: </label>
-            </div>
-            <div class="form-group">
-                <label>Años:</label>
-                <input type="number" id="total-anios" disabled>
-            </div>
-            <div class="form-group">
-                <label for="">Meses</label>
-                <input type="number" id="total-meses" disabled>
+        <div class="container">
+            <div class="header">X. PRETENSIÓN SALARIAL:</div>
+            <div class="form-content">
+                <label for="">Bs:</label>
+                <input type="text" style="font-size: 15px; width: 50%; padding: 4px;">
             </div>
         </div>
-    </div>
-    
-    <div class="container">
-        <div class="header">IV. CURSOS, SEMINARIOS Y TALLERES DE CAPACITACIÓN (Señale los cursos a los que ha asistido, prioritariamente aquellos relacionados con el cargo al cual postula)</div>
-        <div class="form-content">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Año</th>
-                        <th>Área de Capacitaciones</th>
-                        <th>Institución</th>
-                        <th>Nombre de la Capacitación</th>
-                        <th>Duración en Horas</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody-cursos">
-                    <tr class="fila-cursos">
-                        <td>
-                            <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;">
-                        </td>
-                        <td>
-                            <textarea type="text" name="cap[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <textarea type="text" name="inst[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <textarea type="text" name="n_cap[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <input type="number" name="horas[]" style="border: none; width: 100%; padding: 4px;">
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="container">
-        <div class="header">V. MANEJO DE PAQUETES INFORMÁTICOS</div>
-        <div class="form-content">
-            <table>
-                <thead>
-                    <tr>
-                        <th>PAQUETE Ms Office</th>
-                        <th>REGULAR</th>
-                        <th>BUENO</th>
-                        <th>MUY BUENO</th>
-                        <th>N° Folio</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody-paquetes">
-                    <tr class="fila-paquetes">
-                        <td>
-                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <input type="radio" name="nivel" style="border: none; padding: 4px; width: 100%; height: 20px;">
-                        </td>
-                        <td>
-                            <input type="radio" name="nivel" style="border: none; width: 100%; padding: 4px; height: 20px;">
-                        </td>
-                        <td>
-                            <input type="radio" name="nivel" style="border: none; width: 100%; padding: 4px; height: 20px;">
-                        </td>
-                        <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
-                        </td>
-                        
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="container">
-        <div class="header">VI. IDIOMAS</div>
-        <div class="form-content">
-            <table>
-                <thead>
-                    <tr>
-                        <th>IDIOMAS</th>
-                        <th>Lectura</th>
-                        <th>Escritura</th>
-                        <th>Conversación</th>
-                        <th>N° Folio</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody-idiomas">
-                    <tr class="fila-idiomas">
-                        <td>
-                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
-                        </td>
-                        <td>
-                            <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
-                        </td>
-                        <td>
-                            <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
-                        </td>
-                        <td>
-                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="container">
-        <div class="header">VII. DOCENCIA O EXPERIENCIA ACADÉMICA</div>
-        <div class="form-content">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Año</th>
-                        <th>Institución</th>
-                        <th>Nombre del Curso</th>
-                        <th>Duración en horas</th>
-                        <th>N° Folio</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody-docencia">
-                    <tr class="fila-docencia">
-                        <td>
-                            <input type="number" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
-                        </td>
-                        <td>
-                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <input type="number" style="border: none; width: 100%; padding: 4px;">
-                        </td>
-                        <td>
-                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="container">
-        <div class="header">VIII. REFERENCIAS PERSONALES (Señale al menos tres referencias laborales)</div>
-        <div class="form-content">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nombre y Apellido</th>
-                        <th>Institución</th>
-                        <th>Puesto</th>
-                        <th>Teléfono</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody-ref">
-                    <tr class="fila-ref">
-                        <td>
-                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="container">
-        <div class="header">IX. REGISTRO PROFESIONAL DEL COLEGIO O ENTIDAD PÚBLICA (Si corresponde):</div>
-        <div class="form-content">
-            <div class="form-group">
-                <label for="">Nombre:</label>
-                <textarea style="color: #000; width: 100%; padding: 4px;"></textarea>
-                <label style="margin-top: 5px;">N° de Registro</label>
-                <input type="text" style="width: 30%; padding: 4px;">
+        <div class="container">
+            <div class="header">
+                XI. DE LAS INCOMPATIBILIDADES O IMPEDIMENTOS
+            </div>
+            <div class="form-content">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <td>PREGUNTA</td>
+                            <td>SI</td>
+                            <td>NO</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label><strong>a) ¿Tiene vinculación matrimonial, grado de parentesco hasta el cuarto grado de consanguinidad y segundo de afinidad con algún miembro del Ministerio de Turismo sostenible, culturas, folklore y Gastronomía?.</label></strong></label>
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="radio" name="prg1" style="border: none; width: 80%; height: 20px;">
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="radio" name="prg1" style="border: none; width: 80%; height: 20px;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label><strong>b) ¿Tiene otra actividad pública remunerada a tiempo completo; actividad privada, directiva sindical, civica, corporativa o gremial, con remuneración o sin ella? (se exceptua la actividad docente universitaria).</label></strong></label>
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="radio" name="prg2" style="border: none; width: 80%; height: 20px;">
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="radio" name="prg2" style="border: none; width: 80%; height: 20px;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label><strong>c) ¿Percibe renta de vejez u de otro tipo, sin resolución que suspenda legalmente la percepción de dichas rentas?</label></strong></label>
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="radio" name="prg3" style="border: none; width: 80%; height: 20px;">
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="radio" name="prg3" style="border: none; width: 80%; height: 20px;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label><strong>d) ¿Fue destituido mediante proceso administrativo de alguno de los Organos del Estado; tiene pliego de cargo ejecutoriado o sentencia judicial por responsabilidad civil contra el Estado; o, existe en su contra Sentencia Condenatoria Ejecutoriada a pena privativa de libertad?</label></strong></label>
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="radio" name="prg4" style="border: none; width: 80%; height: 20px;">
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="radio" name="prg4" style="border: none; width: 80%; height: 20px;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
-    <div class="container">
-        <div class="header">X. PRETENSIÓN SALARIAL:</div>
-        <div class="form-content">
-            <label for="">Bs:</label>
-            <input type="text" style="font-size: 15px; width: 50%; padding: 4px;">
+        <div class="container">
+            <div class="form-content">
+                <label style="font-size: 20px;"><b><i>Declaración Jurada</i></b></label>
+                <p><i>Por lo expuesto declaro: <br>
+                    Que toda la información expuesta en el presente formulario es verdadera y que la documentación presentada como respaldo es fidedigna.
+                    
+                    Si el Ministerio de Turismo Sostenible, Culturas y Folklore y Gastronomía  evidencia falsedad en la información, se procederá de acuerdo a Ley.</i></p><br><br>
+                    <p style="display: flex; text-align: center; justify-content: center; font-size: 15px;">.................................... <br> Firma </p>
+                    <label for="">Lugar:</label>
+                    <input type="text">
+                    <label for="">Fecha:</label>
+                    <input type="date">
+            </div>
         </div>
-    </div>
-    <div class="container">
-        <div class="header">
-            XI. DE LAS INCOMPATIBILIDADES O IMPEDIMENTOS
+        <div>
+            <button type="submit">GUARDAR</button>
         </div>
-        <div class="form-content">
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <td>PREGUNTA</td>
-                        <td>SI</td>
-                        <td>NO</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <label><strong>a) ¿Tiene vinculación matrimonial, grado de parentesco hasta el cuarto grado de consanguinidad y segundo de afinidad con algún miembro del Ministerio de Turismo sostenible, culturas, folklore y Gastronomía?.</label></strong></label>
-                        </td>
-                        <td style="text-align: center;">
-                            <input type="radio" name="prg1" style="border: none; width: 80%; height: 20px;">
-                        </td>
-                        <td style="text-align: center;">
-                            <input type="radio" name="prg1" style="border: none; width: 80%; height: 20px;">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label><strong>b) ¿Tiene otra actividad pública remunerada a tiempo completo; actividad privada, directiva sindical, civica, corporativa o gremial, con remuneración o sin ella? (se exceptua la actividad docente universitaria).</label></strong></label>
-                        </td>
-                        <td style="text-align: center;">
-                            <input type="radio" name="prg2" style="border: none; width: 80%; height: 20px;">
-                        </td>
-                        <td style="text-align: center;">
-                            <input type="radio" name="prg2" style="border: none; width: 80%; height: 20px;">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label><strong>c) ¿Percibe renta de vejez u de otro tipo, sin resolución que suspenda legalmente la percepción de dichas rentas?</label></strong></label>
-                        </td>
-                        <td style="text-align: center;">
-                            <input type="radio" name="prg3" style="border: none; width: 80%; height: 20px;">
-                        </td>
-                        <td style="text-align: center;">
-                            <input type="radio" name="prg3" style="border: none; width: 80%; height: 20px;">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label><strong>d) ¿Fue destituido mediante proceso administrativo de alguno de los Organos del Estado; tiene pliego de cargo ejecutoriado o sentencia judicial por responsabilidad civil contra el Estado; o, existe en su contra Sentencia Condenatoria Ejecutoriada a pena privativa de libertad?</label></strong></label>
-                        </td>
-                        <td style="text-align: center;">
-                            <input type="radio" name="prg4" style="border: none; width: 80%; height: 20px;">
-                        </td>
-                        <td style="text-align: center;">
-                            <input type="radio" name="prg4" style="border: none; width: 80%; height: 20px;">
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="container">
-        <div class="form-content">
-            <label style="font-size: 20px;"><b><i>Declaración Jurada</i></b></label>
-            <p><i>Por lo expuesto declaro: <br>
-                Que toda la información expuesta en el presente formulario es verdadera y que la documentación presentada como respaldo es fidedigna.
-                
-                Si el Ministerio de Turismo Sostenible, Culturas y Folklore y Gastronomía  evidencia falsedad en la información, se procederá de acuerdo a Ley.</i></p><br><br>
-                <p style="display: flex; text-align: center; justify-content: center; font-size: 15px;">.................................... <br> Firma </p>
-                <label for="">Lugar:</label>
-                <input type="text">
-                <label for="">Fecha:</label>
-                <input type="date">
-        </div>
-    </div>
+    </form>
+
 
     <style>
         body{

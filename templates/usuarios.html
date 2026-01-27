@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+     <nav style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; ">
+        <div class="imagen">
+            <img src="{{url_for('static', filename='image.png')}}" alt="LOGO MTSCFYG" style="width: 250px;">
+        </div>
+        <div>
+            <a href="{{ url_for ('logout') }}" style="text-decoration: none; color: #003366; font-weight: bold; padding: 8px 15px; border: 2px solid #003366; border-radius: 5px;">Cerrar Sesión</a>
+        </div>
+     </nav>
+    <div style="display: flex; align-items: center; justify-content: center;">
+        <label style="font-size: 20px;"><strong>FORMULARIO HOJA DE VIDA</strong></label>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombres</th>
+                <th>Apellido Paterno</th>
+                <th>Apellido Materno</th>
+                <th>Carnet de Identidad</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in datos %}
+            <tr>
+                <td>{{item.id}}</td>
+                <td>{{item.nombres}}</td>
+                <td>{{item.ap_pat}}</td>
+                <td>{{item.ap_mat}}</td>
+                <td>{{item.ci}}</td>
+                <td>
+                    <a href="">Detalles</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <style>
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 20px;
+        }
+        table{
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead{
+            background-color: #003366;
+            color: white;
+        }
+        th{
+            border: 1px solid #003366;
+            padding: 10px;
+            font-size: 15px;
+            text-align: center;
+            width: 200px;
+        }
+        td{
+            border: 1px solid #000;
+            padding: 8px;
+        }
+    </style>
+</body>
+</html>
