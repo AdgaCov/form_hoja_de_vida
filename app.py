@@ -142,5 +142,71 @@ def logout():
 def usuarios():
     return render_template("usuarios.html")
 
+@app.route("/guardar_formulario", methods=["POST"])
+def guardar_formulario():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            INSERT INTO datos (nombre, ap_pat, ap_mat, ci, exp, est_civil, fecha_nac, lugar, nacio, dirección, ciudad, gr_san, tcel, tfijo, n_libser)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                request.form.get('nombres'),
+                request.form.get('ap_pat'),
+                request.form.get('ap_mat'),
+                request.form.get('ci'),
+                request.form.get('exp'),
+                request.form.get('est_civil'),
+                request.form.get('fecha_nac'),
+                request.form.get('lugar'),
+                request.form.get('nacio'),
+                request.form.get('direccion'),
+                request.form.get('ciudad'),
+                request.form.get('gr_san'),
+                request.form.get('tcel'),
+                request.form.get('tfijo'),
+                request.form.get('n_libser')
+            )
+        )
+        
+        persona_id = cursor.lastrowid
+
+        nombre = request.form.getlist('nombre[]')
+        puesto = request.form.getlist('puesto[]')
+        breve = request.form.getlist('breve[]')
+        desde = request.form.getlist('desde[]')
+        hasta = request.form.getlist('hasta[]')
+        motivo = request.form.getlist('motivo[]')
+
+        for i in range(len(nombre)):
+            if nombre[i].split() and puesto[i].split():
+                cursor.execute(
+                    """
+                    INSERT INTO experiencia (persona_id, nombre, puesto, breve, desde, hasta, motivo)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        persona_id,
+                        nombre[i],
+                        puesto[i],
+                        breve[i],
+                        desde[i],
+                        hasta[i],
+                        motivo[i]
+                    )
+                )
+        conn.commit()
+        conn.close()
+
+        flash('Formulario guardado')
+        return redirect(url_for('login'))
+    
+    except sqlite3.IntegrityError as e:
+        flash('El correo ya existe', 'error')
+        return redirect(url_for('index'))
+
 if __name__ == "__main__":
     app.run(debug=True)

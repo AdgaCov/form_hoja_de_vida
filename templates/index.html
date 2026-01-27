@@ -18,7 +18,7 @@
     <div style="display: flex; align-items: center; justify-content: center;">
         <label style="font-size: 20px;"><strong>FORMULARIO HOJA DE VIDA</strong></label>
     </div>
-    <form method="post" action="">
+    <form method="POST" action="{{ url_for('guardar_formulario') }}">
         <div class="container">
             <div class="header">
                 I. DATOS PERSONALES
@@ -480,7 +480,7 @@
             </div>
         </div>
         <div>
-            <button type="submit">GUARDAR</button>
+            <button type="submit" >GUARDAR</button>
         </div>
     </form>
 
