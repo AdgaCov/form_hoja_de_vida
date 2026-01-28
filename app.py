@@ -255,6 +255,22 @@ def guardar_formulario():
                         )
                     )
             conn.commit()
+
+            conn = get_db_connection()
+            persona = conn.execute("SELECT * FROM datos WHERE id = ?", (persona_id,)).fetchone()
+            experiencia = conn.execute("SELECT * FROM experiencia WHERE persona_id = ?",(persona_id,)).fetchone()
+            conn.close()
+
+            pdf_file = genera_pdf_formulario(persona, experiencia)
+            nombre_pdf = f"FORMULARIO_HV_{persona_id}.pdf"
+
+            return send_file(
+                pdf_file,
+                as_attachment=True,
+                download_name=nombre_pdf,
+                mimetype="application/pdf"
+            )
+
         
         flash('Formulario guardado correctamente', 'success')
         return redirect(url_for('index'))
@@ -266,6 +282,121 @@ def guardar_formulario():
     except Exception as e:
         flash(f'Error al guardar: {str(e)}','error')
         return redirect(url_for('index'))
+
+def genera_pdf_formulario(persona, experiencia):
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+
+    pdf.set_font("Helvetica", "B", 14)
+    pdf.cell(0, 10, "FORMULARIO - HOJA DE VIDA", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.ln(3)
+    #datos 
+    datos_personales_layout(pdf, persona)
+
+    pdf_output = BytesIO()
+    pdf_bytes = pdf.output(dest="S")
+    pdf_output.write(pdf_bytes)
+    pdf_output.seek(0)
+    return pdf_output
+
+def datos_personales_layout(pdf, persona):
+    pdf.set_font("Helvetica", "", 10)
+
+    left = 12
+    right = 12
+    top = pdf.get_y() + 5
+
+    page_w = pdf.w - left - right
+    box_h = 8
+    gap_y = 14
+    label_gap = 4
+
+    container_x = left
+    container_y = top
+    container_w = page_w
+    container_h = 95
+
+    pdf.rect(container_x, container_y, container_w, container_h)
+
+    header_h = 10
+    pdf.set_fill_color(0, 51, 102)
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font("Helvetica", "B", 12)
+    pdf.set_xy(container_x, container_y)
+    pdf.cell(container_w, header_h, "I. DATOS PERSONALES", border=0, fill=True, new_x="LMARGIN", new_y="TOP")
+    
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font("Helvetica", "", 9)
+
+    inner_x = container_x + 8
+    inner_y = container_y + header_h + 6
+    inner_w = container_w - 16
+
+    col_gap = 6
+    col_w = (inner_w - (col_gap * 2)) / 3
+
+    def draw_field(label, value, x, y, w):
+        #label
+        pdf.set_xy(x, y)
+        pdf.cell(w, 4, label)
+        #box
+        box_y = y + label_gap
+        pdf.rect(x, box_y, w, box_h)
+
+        pdf.set_xy(x + 2, box_y + 2)
+        txt = "" if value is None else str(value)
+        pdf.cell(w - 4, 4, txt)
+
+    x1 = inner_x
+    x2 = inner_x + col_w + col_gap
+    x3 = inner_x + (col_w + col_gap) * 2
+
+    y = inner_y
+
+    #f1
+    draw_field("Nombres:", persona["nombres"], x1, y, col_w)
+    draw_field("Apellido Paterno:", persona["ap_pat"], x2, y, col_w)
+    draw_field("Apellido Materno:", persona["ap_mat"], x3, y, col_w)
+
+    #F2
+    y += gap_y
+    draw_field("Cédula de Identidad:", persona["ci"], x1, y, col_w)
+    draw_field("Expedido:", persona["exp"], x2, y, col_w)
+    draw_field("Estado Civil:", persona["est_civil"], x3, y, col_w)
+
+    #F3
+    y += gap_y
+    draw_field("Fecha de nacimiento:", persona["fecha_nac"], x1, y, col_w)
+    draw_field("Lugar:", persona["lugar"], x2, y, col_w)
+    draw_field("Nacionalidad:", persona["nacio"], x3, y, col_w)
+
+    #F4
+    y += gap_y
+    dir_w = col_w * 1.5 + col_gap / 2
+    rest_w = inner_w - dir_w - col_gap
+    ciudad_w = rest_w / 2
+    grupo_w = rest_w / 2
+
+    draw_field("Dirección:", persona["direccion"], x1, y, dir_w)
+    x_ciudad = x1 + dir_w + col_gap
+    draw_field("Ciudad:", persona["ciudad"], x_ciudad, y, ciudad_w)
+    x_grupo = x_ciudad + ciudad_w + col_gap
+    draw_field("Grupo Sanguíneo:", persona["gr_san"], x_grupo, y, grupo_w)
+
+    #F5
+    y += gap_y
+    draw_field("Teléfono Celular:", persona["tcel"], x1, y, col_w)
+    draw_field("Teléfono Fijo:", persona["tfijo"], x2, y, col_w)
+    draw_field("Correo Electrónico:", persona["correo"], x3, y, col_w)
+
+    #F6
+    y += gap_y
+    draw_field("N° de Libreta de Servicio Militar", persona["n_libser"], x1, y, inner_w)
+
+
+    pdf.set_y(container_y + container_h + 8)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
