@@ -2,6 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
+from fpdf import FPDF
+from flask import send_file
+import os
+from io import BytesIO
 
 app = Flask(__name__)
 app.secret_key = "clave_secreta"
@@ -20,6 +24,8 @@ def init_database():
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    cursor.execute("PRAGMA journal_mode = WAL")
+
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS datos(
@@ -37,7 +43,7 @@ def init_database():
         ciudad TEXT NOT NULL,
         gr_san TEXT NOT NULL,
         tcel INTEGER NOT NULL,
-        tfijo INTEGER
+        tfijo INTEGER,
         correo TEXT UNIQUE,
         n_libser TEXT
         )
@@ -140,72 +146,125 @@ def logout():
 @app.route('/usuarios')
 @login_required
 def usuarios():
-    return render_template("usuarios.html")
+    conn = get_db_connection()
+    datos = conn.execute(
+        """
+        SELECT id, nombres, ap_pat, ap_mat, ci FROM datos ORDER BY id DESC
+        """
+    ).fetchall()
+    conn.close()
 
-@app.route("/guardar_formulario", methods=["POST"])
-def guardar_formulario():
+    return render_template("usuarios.html", datos=datos)
+
+@app.route('/detalles/<int:id>')
+@login_required
+def detalles(id):
+    conn = get_db_connection()
+    persona = conn.execute("SELECT * FROM datos WHERE id = ?", (id, )).fetchone()
+    experiencia = conn.execute(
+        """
+        SELECT * FROM experiencia
+        WHERE persona_id = ?
+        ORDER BY id DESC
+        """, (id,)).fetchall()
+    
+    conn.close()
+
+    if persona is None:
+        flash("Persona no encontrada", "error")
+        return redirect(url_for('usuarios'))
+    return render_template("detalles.html", persona=persona, experiencia=experiencia)
+
+@app.route("/eliminar/<int:id>", methods=['POST'])
+@login_required
+def eliminar(id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute(
-            """
-            INSERT INTO datos (nombre, ap_pat, ap_mat, ci, exp, est_civil, fecha_nac, lugar, nacio, dirección, ciudad, gr_san, tcel, tfijo, n_libser)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                request.form.get('nombres'),
-                request.form.get('ap_pat'),
-                request.form.get('ap_mat'),
-                request.form.get('ci'),
-                request.form.get('exp'),
-                request.form.get('est_civil'),
-                request.form.get('fecha_nac'),
-                request.form.get('lugar'),
-                request.form.get('nacio'),
-                request.form.get('direccion'),
-                request.form.get('ciudad'),
-                request.form.get('gr_san'),
-                request.form.get('tcel'),
-                request.form.get('tfijo'),
-                request.form.get('n_libser')
-            )
-        )
-        
-        persona_id = cursor.lastrowid
+        cursor.execute("DELETE FROM experiencia WHERE persona_id = ?", (id, ))
+        cursor.execute("DELETE FROM datos WHERE id = ?", (id, ))
 
-        nombre = request.form.getlist('nombre[]')
-        puesto = request.form.getlist('puesto[]')
-        breve = request.form.getlist('breve[]')
-        desde = request.form.getlist('desde[]')
-        hasta = request.form.getlist('hasta[]')
-        motivo = request.form.getlist('motivo[]')
-
-        for i in range(len(nombre)):
-            if nombre[i].split() and puesto[i].split():
-                cursor.execute(
-                    """
-                    INSERT INTO experiencia (persona_id, nombre, puesto, breve, desde, hasta, motivo)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        persona_id,
-                        nombre[i],
-                        puesto[i],
-                        breve[i],
-                        desde[i],
-                        hasta[i],
-                        motivo[i]
-                    )
-                )
         conn.commit()
         conn.close()
 
-        flash('Formulario guardado')
-        return redirect(url_for('login'))
+        flash("Registro eliminado!!!", 'success')
+        return redirect(url_for("usuarios"))
+    
+    except Exception as e:
+        flash(f"Error al eliminar: {str(e)}", 'error')
+        return redirect(url_for('usuarios'))
+
+@app.route("/guardar_formulario", methods=["POST"])
+def guardar_formulario():
+    persona_id = None
+    try:
+        with get_db_connection() as conn:
+        
+            cursor = conn.cursor()
+
+            cursor.execute(
+                """
+                INSERT INTO datos (nombres, ap_pat, ap_mat, ci, exp, est_civil, fecha_nac, lugar, nacio, direccion, ciudad, gr_san, tcel, tfijo, correo, n_libser)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    request.form.get('nombres'),
+                    request.form.get('ap_pat'),
+                    request.form.get('ap_mat'),
+                    request.form.get('ci'),
+                    request.form.get('exp'),
+                    request.form.get('est_civil'),
+                    request.form.get('fecha_nac'),
+                    request.form.get('lugar'),
+                    request.form.get('nacio'),
+                    request.form.get('direccion'),
+                    request.form.get('ciudad'),
+                    request.form.get('gr_san'),
+                    request.form.get('tcel'),
+                    request.form.get('tfijo'),
+                    request.form.get('correo'),
+                    request.form.get('n_libser')
+                )
+            )
+            
+            persona_id = cursor.lastrowid
+
+            nombre = request.form.getlist('nombre[]')
+            puesto = request.form.getlist('puesto[]')
+            breve = request.form.getlist('breve[]')
+            desde = request.form.getlist('desde[]')
+            hasta = request.form.getlist('hasta[]')
+            motivo = request.form.getlist('motivo[]')
+
+            for i in range(len(nombre)):
+                if nombre[i].strip() and puesto[i].strip():
+                    cursor.execute(
+                        """
+                        INSERT INTO experiencia (persona_id, nombre, puesto, breve, desde, hasta, motivo)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            persona_id,
+                            nombre[i],
+                            puesto[i],
+                            breve[i],
+                            desde[i],
+                            hasta[i],
+                            motivo[i]
+                        )
+                    )
+            conn.commit()
+        
+        flash('Formulario guardado correctamente', 'success')
+        return redirect(url_for('index'))
     
     except sqlite3.IntegrityError as e:
         flash('El correo ya existe', 'error')
+        return redirect(url_for('index'))
+    
+    except Exception as e:
+        flash(f'Error al guardar: {str(e)}','error')
         return redirect(url_for('index'))
 
 if __name__ == "__main__":

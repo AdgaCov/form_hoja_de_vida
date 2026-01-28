@@ -18,6 +18,26 @@
     <div style="display: flex; align-items: center; justify-content: center;">
         <label style="font-size: 20px;"><strong>FORMULARIO HOJA DE VIDA</strong></label>
     </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div style="max-width: 1100px; margin: 10px auto;">
+                {% for category, message in messages %}
+                    <div style="
+                    padding: 12px;
+                    border-radius: 8px;
+                    margin-bottom: 10px;
+                    font-weight: bold;
+                    background: #d1fae5;
+                    color: #065f46;
+                    border: 1px solid #10b981;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>    
+        {% endif %}
+    {% endwith %}
+
     <form method="POST" action="{{ url_for('guardar_formulario') }}">
         <div class="container">
             <div class="header">
@@ -47,25 +67,25 @@
                         <label for="">Expedido en:</label>
                         <select name="exp" required>
                             <option value="">Seleccione...</option>
-                            <option value="">LP</option>
-                            <option value="">SC</option>
-                            <option value="">CB</option>
-                            <option value="">OR</option>
-                            <option value="">PT</option>
-                            <option value="">CH</option>
-                            <option value="">TJ</option>
-                            <option value="">BE</option>
-                            <option value="">PA</option>
-                            <option value="">QR</option>
+                            <option value="LP">LP</option>
+                            <option value="SC">SC</option>
+                            <option value="CB">CB</option>
+                            <option value="OR">OR</option>
+                            <option value="PT">PT</option>
+                            <option value="CH">CH</option>
+                            <option value="TJ">TJ</option>
+                            <option value="BE">BE</option>
+                            <option value="PA">PA</option>
+                            <option value="QR">QR</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Estado Civil:</label>
                         <select name="est_civil">
-                            <option value="">Soltero(a)</option>
-                            <option value="">Casado(a)</option>
-                            <option value="">Divorciado(a)</option>
-                            <option value="">Viudo(a)</option>
+                            <option value="Soletero(a)">Soltero(a)</option>
+                            <option value="Casado(a)">Casado(a)</option>
+                            <option value="Divorciado(a)">Divorciado(a)</option>
+                            <option value="Viudo(a)">Viudo(a)</option>
                         </select>
                     </div>
                 </div>

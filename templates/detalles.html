@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles</title>
+</head>
+<body>
+    <nav style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; ">
+        <div class="imagen">
+            <img src="{{url_for('static', filename='image.png')}}" alt="LOGO MTSCFYG" style="width: 250px;">
+        </div>
+    </nav>
+    <div style="display: flex; align-items: center; justify-content: center;">
+        <label style="font-size: 20px;"><strong>FORMULARIO HOJA DE VIDA</strong></label>
+    </div>
+<div class="container">
+            <div class="header">
+                I. DATOS PERSONALES
+            </div>
+            <div class="form-content">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="">Nombres:</label>
+                        <input type="text" value="{{ persona.nombres }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Apellido Paterno:</label>
+                        <input type="text" value="{{ persona.ap_pat }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Apellido Materno:</label>
+                        <input type="text" value="{{ persona.ap_mat }}" disabled>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="">Cédula de Identidad:</label>
+                        <input type="text" value="{{ persona.ci }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Expedido en:</label>
+                        <input type="text" value="{{ persona.exp }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado Civil:</label>
+                        <input type="text" value="{{ persona.est_civil }}" disabled>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha de Nacimiento:</label>
+                        <input type="date" value="{{ persona.fecha_nac }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Lugar:</label>
+                        <input type="text" value="{{ persona.lugar }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Nacionalidad</label>
+                        <input type="text" value="{{ persona.nacio }}" disabled>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="">Dirección/ Domicilio:</label>
+                        <input type="text" value="{{ persona.direccion }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Ciudad:</label>
+                        <input type="text" value="{{ persona.ciudad }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <div class="box">
+                            <div>
+                                <label for="">Grupo Sanguíneo:</label>
+                                <input type="text" value="{{ persona.gr_san }}" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="">Teléfono Celular:</label>
+                        <input type="number" value="{{ persona.tcel }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Teléfono Fijo:</label>
+                        <input type="number" value="{{ persona.tfijo }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Correo Electrónico:</label>
+                        <input type="email" value="{{ persona.correo }}" disabled>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="">N° Libreta de Servicio Militar:</label>
+                        <input type="text" value="{{ persona.n_libser }}" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="header">III. EXPERIENCIA (Detalle los puestos y instituciones o empresas en las que ejerció funciones, en orden cronológico empezando por la más reciente)</div>
+            <div class="form-content">
+                <table id="tabla-experiencia">
+                    <thead>
+                        <tr>
+                            <th>Nombre de la Institución o Empresa</th>
+                            <th>Puesto</th>
+                            <th>Breve descripción de funciones</th>
+                            <th>Desde</th>
+                            <th>Hasta</th>
+                            <th>Motivo de retiro o si trabaja actualmente</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-experiencia">
+                        {% if experiencia %}
+                            {% for exp in experiencia %}
+                            <tr>
+                                <td><textarea rows="1" class="auto-resize" disabled>{{ exp.nombre }}</textarea></td>
+                                <td><textarea rows="1" class="auto-resize" disabled>{{ exp.puesto }}</textarea></td>
+                                <td><textarea rows="1" class="auto-resize" disabled>{{ exp.breve }}</textarea></td>
+                                <td><input type="text" value="{{ exp.desde }}" disabled></td>
+                                <td><input type="text" value="{{ exp.hasta }}" disabled></td>
+                                <td><textarea rows="1" class="auto-resize" disabled>{{ exp.motivo }}</textarea></td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+<style>
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 20px;
+        }
+        .container{
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border: 2px solid;
+            margin-top: 20px;
+        }
+        .header{
+            background-color: #003366;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .form-content{
+            padding: 20px;
+        }
+        .form-row{
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+        .form-group{
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        label{
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input[type="text"], input[type="date"], input[type="email"], input[type="number"]{
+            padding: 6px;
+            border: 1px solid #000;
+            font-size: 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        table{
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead{
+            background-color: #003366;
+            color: white;
+        }
+        th{
+            border: 1px solid #003366;
+            padding: 10px;
+            font-size: 11px;
+            text-align: center;
+            width: 200px;
+        }
+        td{
+            border: 1px solid #000;
+            padding: 8px;
+        }
+        textarea{
+            border: none;
+            width: 100%;
+            padding: 4px;
+            resize: none;
+            overflow: hidden;
+            font-family: inherit;
+            font-size: inherit;
+        }
+    </style>
+</body>
+</html>
