@@ -282,15 +282,86 @@ def logout():
 @app.route('/usuarios')
 @login_required
 def usuarios():
-    conn = get_db_connection()
-    datos = conn.execute(
-        """
-        SELECT id, nombres, ap_pat, ap_mat, ci FROM datos ORDER BY id DESC
-        """
-    ).fetchall()
-    conn.close()
+    with get_db_connection() as conn:
+        datos = conn.execute('SELECT * FROM datos ORDER BY id ASC').fetchall()
+        usuarios = conn.execute('SELECT id, username FROM users ORDER BY id').fetchall()
+    return render_template("usuarios.html", datos=datos, usuarios=usuarios)
 
-    return render_template("usuarios.html", datos=datos)
+@app.route("/crear_usuario", methods=["POST"])
+@login_required
+def crear_usuario():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+    
+    if password != confirm_password:
+        flash('Las contraseñas no coinciden', 'danger')
+        return redirect(url_for('usuarios'))
+    
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            hashed_password = generate_password_hash(password)
+            cursor.execute(
+                "INSERT INTO users (username, password) VALUES (?, ?)",
+                (username, hashed_password)
+            )
+            conn.commit()
+        
+        flash(f'Usuario {username} creado exitosamente', 'success')
+    except sqlite3.IntegrityError:
+        flash('El usuario ya existe', 'danger')
+    
+    return redirect(url_for('usuarios'))
+
+# Ruta para editar usuario
+@app.route("/editar_usuario/<int:id>", methods=["POST"])
+@login_required
+def editar_usuario(id):
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            if password:
+                hashed_password = generate_password_hash(password)
+                cursor.execute(
+                    "UPDATE users SET username = ?, password = ? WHERE id = ?",
+                    (username, hashed_password, id)
+                )
+            else:
+                cursor.execute(
+                    "UPDATE users SET username = ? WHERE id = ?",
+                    (username, id)
+                )
+            
+            conn.commit()
+        
+        flash(f'Usuario actualizado exitosamente', 'success')
+    except sqlite3.IntegrityError:
+        flash('El nombre de usuario ya existe', 'danger')
+    except Exception as e:
+        flash(f'Error al actualizar: {str(e)}', 'danger')
+    
+    return redirect(url_for('usuarios'))
+
+@app.route("/eliminar_usuario/<int:id>", methods=["POST"])
+@login_required
+def eliminar_usuario(id):
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM users WHERE id = ?", (id,))
+            conn.commit()
+        
+        flash('Usuario eliminado exitosamente', 'success')
+    except Exception as e:
+        flash(f'Error al eliminar: {str(e)}', 'danger')
+    
+    return redirect(url_for('usuarios'))
+
 
 @app.route('/detalles/<int:id>')
 @login_required
@@ -366,6 +437,30 @@ def guardar_formulario():
             
             persona_id = cursor.lastrowid
 
+            #formacion
+            detalles = request.form.getlist('detalle[]')
+            instituciones = request.form.getlist('institucion[]')
+            grados = request.form.getlist('grado[]')
+            anios = request.form.getlist('anio[]')
+            folios = request.form.getlist('n_folio[]')
+
+            for i in range(len(detalles)):
+                if detalles[i].strip() and instituciones[i].strip():
+                    cursor.execute(
+                        """
+                        INSERT INTO formacion_academica (persona_id, detalles, isntituciones, grados, anios, folios)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        """,
+                        (persona_id,
+                         detalles[i],
+                         instituciones[i],
+                         grados[i],
+                         int(anios[i]) if anios[i] else None,
+                         folios[i] if i < len(folios) else None
+                        )
+                    )
+
+            #experiencia
             nombre = request.form.getlist('nombre[]')
             puesto = request.form.getlist('puesto[]')
             breve = request.form.getlist('breve[]')
@@ -390,7 +485,186 @@ def guardar_formulario():
                             motivo[i]
                         )
                     )
+            
+            #cursos
+            anios_cursos = request.form.getlist['anio[]']
+            capacitaciones = request.form.getlist['cap[]']
+            instituciones_curso = request.form.getlist['inst[]']
+            nombres_cap = request.form.getlist['n_cap[]']
+            horas = request.form.getlist['horas[]']
+
+            for i in range(len(capacitaciones)):
+                if capacitaciones[i].strip() and instituciones_curso[i].strip():
+                    cursor.execute(
+                        """
+                        INSERT INTO cursos (persona_id, anio, cap, inst, n_cap, horas)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            persona_id,
+                            int(anios_cursos[i]) if i < len(anios_cursos) and anios_cursos[i] else None,
+                            capacitaciones[i],
+                            instituciones_curso[i],
+                            nombres_cap[i] if i < len(nombres_cap) else '',
+                            int(horas[i]) if i < len(horas) and horas[i] else None
+                        )
+                    )
+            
+            #paquetes
+            paquetes = request.form.getlist('paquete[]')
+            folios_paquete = request.form.getlist('folio_paquete[]')
+            
+            for i in range(len(paquetes)):
+                if paquetes[i].strip():
+                    nivel = request.form.get(f'nivel_{i}')
+                    cursor.execute(
+                        """
+                        INSERT INTO paquetes_informaticos (persona_id, paquete, nivel, folio)
+                        VALUES (?, ?, ?, ?)
+                        """,
+                        (
+                            persona_id,
+                            paquetes[i],
+                            nivel,
+                            folios_paquete[i] if i < len(folios_paquete) else None
+                        )
+                    )
+
+            #idiomas
+            idiomas = request.form.getlist('idioma[]')
+            folios_idioma = request.form.getlist('folio_idioma[]')
+            
+            for i in range(len(idiomas)):
+                if idiomas[i].strip():
+                    lectura = 1 if f'lectura_{i}' in request.form else 0
+                    escritura = 1 if f'escritura_{i}' in request.form else 0
+                    conversacion = 1 if f'conversacion_{i}' in request.form else 0
+                    
+                    cursor.execute(
+                        """
+                        INSERT INTO idiomas (persona_id, idioma, lectura, escritura, conversacion, folio)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            persona_id,
+                            idiomas[i],
+                            lectura,
+                            escritura,
+                            conversacion,
+                            folios_idioma[i] if i < len(folios_idioma) else None
+                        )
+                    )
+            
+            #docencia
+            anios_docencia = request.form.getlist('anio_docencia[]')
+            instituciones_docencia = request.form.getlist('institución_docencia[]')
+            nombres_curso = request.form.getlist('nombre_curso[]')
+            horas_docencia = request.form.getlist('horas_docencia[]')
+            folios_docencia = request.form.getlist('folio_docencia[]')
+
+            for i in range(len(instituciones_docencia)):
+                if instituciones_docencia[i].strip() and nombres_curso[i].strip():
+                    cursor.execute(
+                        """
+                        INSERT INTO docencia (persona_id, anio, institucion, nombre_curso, duracion_horas, folio)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            persona_id,
+                            int(anios_docencia[i]) if i < len(anios_docencia) and anios_docencia[i] else None,
+                            instituciones_docencia[i],
+                            nombres_curso[i],
+                            int(horas_docencia[i]) if i < len(horas_docencia) and horas_docencia[i] else None,
+                            folios_docencia[i] if i < len(folios_docencia) else None
+                        )
+                    )
+            
+            #referencias
+            nombres_ref = request.form.getlist('nombre_ref[]')
+            instituciones_ref = request.form.getlist('institucion_ref[]')
+            puestos_ref = request.form.getlist('puesto_ref[]')
+            telefonos_ref = request.form.getlist('telefono_ref[]')
+            
+            for i in range(len(nombres_ref)):
+                if nombres_ref[i].strip() and instituciones_ref[i].strip():
+                    cursor.execute(
+                        """
+                        INSERT INTO referencias (persona_id, nombre_apellido, institucion, puesto, telefono)
+                        VALUES (?, ?, ?, ?, ?)
+                        """,
+                        (
+                            persona_id,
+                            nombres_ref[i],
+                            instituciones_ref[i],
+                            puestos_ref[i] if i < len(puestos_ref) else '',
+                            telefonos_ref[i] if i < len(telefonos_ref) else None
+                        )
+                    )
+            
+            #registro profesional
+            nombre_registro = request.form.get('nombre_registro')
+            numero_registro = request.form.get('numero_registro')
+            
+            if nombre_registro or numero_registro:
+                cursor.execute(
+                    """
+                    INSERT INTO registro_profesional (persona_id, nombre, numero_registro)
+                    VALUES (?, ?, ?)
+                    """,
+                    (
+                        persona_id,
+                        nombre_registro,
+                        numero_registro
+                    )
+                )
+
+            #pretension salarial
+            monto_bs = request.form.get('monto_bs')
+
+            if monto_bs:
+                cursor.execute(
+                    """
+                    INSERT INTO pretension_salarial (persona_id, monto_bs)
+                    VALUES (?, ?)
+                    """,
+                    (persona_id, monto_bs)
+                )
+
+            #incopatibilidades
+            cursor.execute(
+                """
+                INSERT INTO incompatibilidades (persona_id, vinculacion_ministerio, otra_actividad, percibe_renta, destitucion_sentencia)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    persona_id,
+                    request.form.get('prg1'),
+                    request.form.get('prg2'),
+                    request.form.get('prg3'),
+                    request.form.get('prg4')
+                )
+            )
+
+            #declaracion
+            lugar_declaracion = request.form.get('lugar_declaracion')
+            fecha_declaracion = request.form.get('fecha_declaracion')
+            
+            if lugar_declaracion or fecha_declaracion:
+                cursor.execute(
+                    """
+                    INSERT INTO declaracion_jurada (persona_id, lugar, fecha)
+                    VALUES (?, ?, ?)
+                    """,
+                    (
+                        persona_id,
+                        lugar_declaracion,
+                        fecha_declaracion
+                    )
+                )
+
             conn.commit()
+            flash('Formulario guardado exitosamente','success')
+
 
             conn = get_db_connection()
             persona = conn.execute("SELECT * FROM datos WHERE id = ?", (persona_id,)).fetchone()
@@ -405,7 +679,7 @@ def guardar_formulario():
                 as_attachment=True,
                 download_name=nombre_pdf,
                 mimetype="application/pdf"
-            )
+            )           
 
         
         flash('Formulario guardado correctamente', 'success')
@@ -532,6 +806,7 @@ def datos_personales_layout(pdf, persona):
 
 
     pdf.set_y(container_y + container_h + 8)
+
 
 
 if __name__ == "__main__":

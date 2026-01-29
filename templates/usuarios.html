@@ -3,20 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Usuarios | Hoja de Vida</title>
+    <style>
+        *{
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #003366;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            text-decoration: none;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: bold;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #003366;
+        }
+
+        .btn-primary:hover {
+            background-color: #004d99;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+        /* Tabla */
+        table{
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        thead{
+            background-color: #003366;
+            color: white;
+        }
+        th{
+            border: 1px solid #003366;
+            padding: 10px;
+            font-size: 15px;
+            text-align: center;
+        }
+        td{
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+
+        .modal-header {
+            border-bottom: 2px solid #003366;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #003366;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #003366;
+        }
+
+        .modal-footer {
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        .users-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .alert {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
 </head>
 <body>
-     <nav style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; ">
+    <nav>
         <div class="imagen">
             <img src="{{url_for('static', filename='image.png')}}" alt="LOGO MTSCFYG" style="width: 250px;">
         </div>
-        <div>
-            <a href="{{ url_for ('logout') }}" style="text-decoration: none; color: #003366; font-weight: bold; padding: 8px 15px; border: 2px solid #003366; border-radius: 5px;">Cerrar Sesión</a>
+        <div class="nav-buttons">
+            <button onclick="openAddUserModal()" class="btn btn-success">Añadir Usuario</button>
+            <button onclick="openUsersListModal()" class="btn btn-info">Lista de Usuarios</button>
+            <a href="{{ url_for('logout') }}" class="btn btn-primary">Cerrar Sesión</a>
         </div>
-     </nav>
-    <div style="display: flex; align-items: center; justify-content: center;">
+    </nav>
+
+    <div style="display: flex; align-items: center; justify-content: center; margin: 20px 0;">
         <label style="font-size: 20px;"><strong>FORMULARIO HOJA DE VIDA</strong></label>
     </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <table>
         <thead>
             <tr>
@@ -37,40 +255,149 @@
                 <td>{{item.ap_mat}}</td>
                 <td>{{item.ci}}</td>
                 <td>
-                    <a href="{{ url_for('detalles', id=item.id) }}">Detalles</a>
+                    <a href="{{ url_for('detalles', id=item.id) }}" class="btn btn-info" style="display: inline-block; padding: 5px 10px; font-size: 12px;">Detalles</a>
                     <form action="{{ url_for('eliminar', id=item.id) }}" method="POST" style="display: inline;"
-                    onsubmit="return confirm('Estás seguro de eliminar este registro?');">
-                        <button type="submit" style="background: none; border: none; color: red; cursor: pointer; font-weight: bold;">Eliminar</button>
-                </form>
+                    onsubmit="return confirm('¿Estás seguro de eliminar este registro?');">
+                        <button type="submit" class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;">Eliminar</button>
+                    </form>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    <style>
-        body{
-            font-family: Arial, Helvetica, sans-serif;
-            padding: 20px;
+
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeAddUserModal()">&times;</span>
+                <h2>Añadir Nuevo Usuario</h2>
+            </div>
+            <form method="POST" action="{{ url_for('crear_usuario') }}">
+                <div class="form-group">
+                    <label for="new_username">Usuario:</label>
+                    <input type="text" id="new_username" name="username" placeholder="Ingrese el nombre de usuario" required>
+                </div>
+                <div class="form-group">
+                    <label for="new_password">Contraseña:</label>
+                    <input type="password" id="new_password" name="password" placeholder="Ingrese la contraseña" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirmar Contraseña:</label>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirme la contraseña" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeAddUserModal()" class="btn btn-danger">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Crear Usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div id="usersListModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeUsersListModal()">&times;</span>
+                <h2>Lista de Usuarios del Sistema</h2>
+            </div>
+            <div class="users-table">
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr>
+                            <td>{{ usuario.id }}</td>
+                            <td>{{ usuario.username }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-info btn-edit"
+                                    data-id="{{ usuario.id }}"
+                                    data-username="{{ usuario.username }}"
+                                    style="padding: 5px 10px; font-size: 12px;"
+                                    >
+                                    Editar
+                                </button>
+                                <form action="{{ url_for('eliminar_usuario', id=usuario.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');">
+                                    <button type="submit" class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeEditUserModal()">&times;</span>
+                <h2>Editar Usuario</h2>
+            </div>
+            <form method="POST" id="editUserForm">
+                <div class="form-group">
+                    <label for="edit_username">Usuario:</label>
+                    <input type="text" id="edit_username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_password">Nueva Contraseña (dejar vacío para no cambiar):</label>
+                    <input type="password" id="edit_password" name="password" placeholder="Opcional">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeEditUserModal()" class="btn btn-danger">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'block';
         }
-        table{
-            width: 100%;
-            border-collapse: collapse;
+
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'none';
         }
-        thead{
-            background-color: #003366;
-            color: white;
+
+        function openUsersListModal() {
+            document.getElementById('usersListModal').style.display = 'block';
         }
-        th{
-            border: 1px solid #003366;
-            padding: 10px;
-            font-size: 15px;
-            text-align: center;
-            width: 200px;
+
+        function closeUsersListModal() {
+            document.getElementById('usersListModal').style.display = 'none';
         }
-        td{
-            border: 1px solid #000;
-            padding: 8px;
+        function editUser(id, username) {
+            document.getElementById('edit_username').value = username;
+            document.getElementById('editUserForm').action = `/editar_usuario/${id}`;
+            document.getElementById('editUserModal').style.display = 'block';
         }
-    </style>
+
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        document.querySelectorAll(".btn-edit").forEach(btn => {
+            btn.addEventListener("click", function(){
+                const id = this.dataset.id;
+                const username = this.dataset.username;
+                editUser(id, username);
+            });
+        });
+
+    </script>
 </body>
 </html>

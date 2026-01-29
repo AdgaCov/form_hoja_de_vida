@@ -108,6 +108,7 @@
                 <table id="tabla-experiencia">
                     <thead>
                         <tr>
+                            <th>+</th>
                             <th>Nombre de la Institución o Empresa</th>
                             <th>Puesto</th>
                             <th>Breve descripción de funciones</th>
@@ -119,19 +120,122 @@
                     <tbody id="tbody-experiencia">
                         {% if experiencia %}
                             {% for exp in experiencia %}
-                            <tr>
+                            <tr class="fila-exp">
+                                <td style="text-align: center;">
+                                    <input type="checkbox" class="chk-exp" checked>
+                                </td>
                                 <td><textarea rows="1" class="auto-resize" disabled>{{ exp.nombre }}</textarea></td>
                                 <td><textarea rows="1" class="auto-resize" disabled>{{ exp.puesto }}</textarea></td>
                                 <td><textarea rows="1" class="auto-resize" disabled>{{ exp.breve }}</textarea></td>
-                                <td><input type="text" value="{{ exp.desde }}" disabled></td>
-                                <td><input type="text" value="{{ exp.hasta }}" disabled></td>
+                                <td><input type="date" class="exp-desde" value="{{ exp.desde }}" disabled></td>
+                                <td><input type="date" class="exp-hasta" value="{{ exp.hasta }}" disabled></td>
                                 <td><textarea rows="1" class="auto-resize" disabled>{{ exp.motivo }}</textarea></td>
                             </tr>
                             {% endfor %}
                         {% endif %}
                     </tbody>
+                    <div class="form-row" style="margin-top: 15px; align-items: center;">
+                        <div class="form-group" style="flex: unset;">
+                            <button type="button" id="btn-recalcular">Recalcular solo seleccionados</button>
+                        </div>
+
+                        <div class="form-group" style="flex: unset;">
+                            <button type="button" id="btn-seleccionar-todos">Seleccionar todos</button>
+                        </div>
+
+                        <div class="form-group" style="flex: unset;">
+                            <button type="button" id="btn-quitar-seleccion">Quitar selección</button>
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-top: 10px; align-items: center;">
+                        <div class="form-group" style="flex: unset;">
+                            <label><strong>Resumen total:</strong></label>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Años:</label>
+                            <input type="number" id="total-anios" disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Meses:</label>
+                            <input type="number" id="total-meses" disabled>
+                        </div>
+                    </div>
                 </table>
             </div>
+        </div>
+<script>
+function calcularAniosSeleccionados() {
+  const filas = document.querySelectorAll("#tbody-experiencia tr.fila-exp");
+  let totalMeses = 0;
+
+  filas.forEach(fila => {
+    const chk = fila.querySelector(".chk-exp");
+    if (!chk || !chk.checked) return;
+
+    const desdeInput = fila.querySelector(".exp-desde");
+    const hastaInput = fila.querySelector(".exp-hasta");
+
+    if (!desdeInput || !hastaInput) return;
+
+    const desde = desdeInput.value;
+    const hasta = hastaInput.value;
+
+    if (!desde || !hasta) return;
+
+    const fechaDesde = new Date(desde);
+    const fechaHasta = new Date(hasta);
+
+    if (isNaN(fechaDesde.getTime()) || isNaN(fechaHasta.getTime())) return;
+    if (fechaHasta < fechaDesde) return;
+
+    // calcular diferencia en meses
+    let meses = (fechaHasta.getFullYear() - fechaDesde.getFullYear()) * 12;
+    meses += (fechaHasta.getMonth() - fechaDesde.getMonth());
+
+    // ajuste por días
+    if (fechaHasta.getDate() < fechaDesde.getDate()) {
+      meses -= 1;
+    }
+
+    totalMeses += Math.max(0, meses);
+  });
+
+  const anios = Math.floor(totalMeses / 12);
+  const meses = totalMeses % 12;
+
+  document.getElementById("total-anios").value = anios;
+  document.getElementById("total-meses").value = meses;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // calcular al cargar
+  calcularAniosSeleccionados();
+
+  // botón recalcular
+  document.getElementById("btn-recalcular").addEventListener("click", calcularAniosSeleccionados);
+
+  // seleccionar todos
+  document.getElementById("btn-seleccionar-todos").addEventListener("click", () => {
+    document.querySelectorAll(".chk-exp").forEach(c => c.checked = true);
+    calcularAniosSeleccionados();
+  });
+
+  // quitar selección
+  document.getElementById("btn-quitar-seleccion").addEventListener("click", () => {
+    document.querySelectorAll(".chk-exp").forEach(c => c.checked = false);
+    calcularAniosSeleccionados();
+  });
+
+  // recalcular cuando cambias checks
+  document.querySelectorAll(".chk-exp").forEach(chk => {
+    chk.addEventListener("change", calcularAniosSeleccionados);
+  });
+
+});
+</script>
+
 <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
