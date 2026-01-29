@@ -7,14 +7,14 @@
     <title>FORMULARIO | HOJA DE VIDA</title>
 </head>
 <body>
-     <nav style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; ">
+    <nav style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; ">
         <div class="imagen">
             <img src="{{url_for('static', filename='image.png')}}" alt="LOGO MTSCFYG" style="width: 250px;">
         </div>
         <div>
             <a href="{{ url_for ('login') }}" style="text-decoration: none; color: #003366; font-weight: bold; padding: 8px 15px; border: 2px solid #003366; border-radius: 5px;">Iniciar Sesión</a>
         </div>
-     </nav>
+    </nav>
     <div style="display: flex; align-items: center; justify-content: center;">
         <label style="font-size: 20px;"><strong>FORMULARIO HOJA DE VIDA</strong></label>
     </div>
@@ -220,7 +220,9 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="">Resumen de años de servicios: </label>
+                    <button type="button" id="btn-calcular">
+                        Calcular
+                    </button>
                 </div>
                 <div class="form-group">
                     <label>Años:</label>
@@ -284,19 +286,19 @@
                     <tbody id="tbody-paquetes">
                         <tr class="fila-paquetes">
                             <td>
-                                <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                                <textarea name="paquete[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                             </td>
                             <td>
-                                <input type="radio" name="nivel" style="border: none; padding: 4px; width: 100%; height: 20px;">
+                                <input type="radio" name="nivel" value="regular" style="border: none; padding: 4px; width: 100%; height: 20px;">
                             </td>
                             <td>
-                                <input type="radio" name="nivel" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                                <input type="radio" name="nivel" value="bueno" style="border: none; width: 100%; padding: 4px; height: 20px;">
                             </td>
                             <td>
-                                <input type="radio" name="nivel" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                                <input type="radio" name="nivel" value="muy_bueno" style="border: none; width: 100%; padding: 4px; height: 20px;">
                             </td>
                             <td>
-                                <input type="text" style="border: none; width: 100%; padding: 4px;">
+                                <input type="text" name="folio_paquete[]" style="border: none; width: 100%; padding: 4px;">
                             </td>
                             
                         </tr>
@@ -320,19 +322,19 @@
                     <tbody id="tbody-idiomas">
                         <tr class="fila-idiomas">
                             <td>
-                                <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                                <textarea name="idioma[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                             </td>
                             <td>
-                                <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                                <input name="lectura" type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
                             </td>
                             <td>
-                                <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                                <input name="escritura" type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
                             </td>
                             <td>
-                                <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                                <input name="conversacion" type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
                             </td>
                             <td>
-                                <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                                <textarea name="folio_idioma[]" rows="1" class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
                             </td>
                         </tr>
                     </tbody>
@@ -355,19 +357,19 @@
                     <tbody id="tbody-docencia">
                         <tr class="fila-docencia">
                             <td>
-                                <input type="number" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
+                                <input type="number" name="anio_docencia[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
                             </td>
                             <td>
-                                <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                                <textarea name="institucion_docencia[]" rows="1" class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
                             </td>
                             <td>
-                                <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                                <textarea name="nombre_curso[]" rows="1" class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
                             </td>
                             <td>
-                                <input type="number" style="border: none; width: 100%; padding: 4px;">
+                                <input type="number" name="horas_docencia[]" style="border: none; width: 100%; padding: 4px;">
                             </td>
                             <td>
-                                <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
+                                <textarea name="folio_docencia[]" rows="1" class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
                             </td>
                         </tr>
                     </tbody>
@@ -389,16 +391,16 @@
                     <tbody id="tbody-ref">
                         <tr class="fila-ref">
                             <td>
-                                <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                                <textarea name="nombre_ref[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                             </td>
                             <td>
-                                <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                                <textarea name="institucion_ref[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                             </td>
                             <td>
-                                <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                                <textarea name="puesto_ref[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                             </td>
                             <td>
-                                <input type="text" style="border: none; width: 100%; padding: 4px;">
+                                <input type="text" name="telefono_ref[]" style="border: none; width: 100%; padding: 4px;">
                             </td>
                         </tr>
                     </tbody>
@@ -410,9 +412,9 @@
             <div class="form-content">
                 <div class="form-group">
                     <label for="">Nombre:</label>
-                    <textarea style="color: #000; width: 100%; padding: 4px;"></textarea>
+                    <textarea name="nombre_registro" style="color: #000; width: 100%; padding: 4px;"></textarea>
                     <label style="margin-top: 5px;">N° de Registro</label>
-                    <input type="text" style="width: 30%; padding: 4px;">
+                    <input type="text" name="numero_registro" style="width: 30%; padding: 4px;">
                 </div>
             </div>
         </div>
@@ -420,7 +422,7 @@
             <div class="header">X. PRETENSIÓN SALARIAL:</div>
             <div class="form-content">
                 <label for="">Bs:</label>
-                <input type="text" style="font-size: 15px; width: 50%; padding: 4px;">
+                <input type="text" name="monto_bs" style="font-size: 15px; width: 50%; padding: 4px;">
             </div>
         </div>
         <div class="container">
@@ -442,10 +444,10 @@
                                 <label><strong>a) ¿Tiene vinculación matrimonial, grado de parentesco hasta el cuarto grado de consanguinidad y segundo de afinidad con algún miembro del Ministerio de Turismo sostenible, culturas, folklore y Gastronomía?.</label></strong></label>
                             </td>
                             <td style="text-align: center;">
-                                <input type="radio" name="prg1" style="border: none; width: 80%; height: 20px;">
+                                <input type="radio" name="prg1" value="si" style="border: none; width: 80%; height: 20px;">
                             </td>
                             <td style="text-align: center;">
-                                <input type="radio" name="prg1" style="border: none; width: 80%; height: 20px;">
+                                <input type="radio" name="prg1" value="no" style="border: none; width: 80%; height: 20px;">
                             </td>
                         </tr>
                         <tr>
@@ -453,10 +455,10 @@
                                 <label><strong>b) ¿Tiene otra actividad pública remunerada a tiempo completo; actividad privada, directiva sindical, civica, corporativa o gremial, con remuneración o sin ella? (se exceptua la actividad docente universitaria).</label></strong></label>
                             </td>
                             <td style="text-align: center;">
-                                <input type="radio" name="prg2" style="border: none; width: 80%; height: 20px;">
+                                <input type="radio" name="prg2" value="si" style="border: none; width: 80%; height: 20px;">
                             </td>
                             <td style="text-align: center;">
-                                <input type="radio" name="prg2" style="border: none; width: 80%; height: 20px;">
+                                <input type="radio" name="prg2" value="no" style="border: none; width: 80%; height: 20px;">
                             </td>
                         </tr>
                         <tr>
@@ -464,10 +466,10 @@
                                 <label><strong>c) ¿Percibe renta de vejez u de otro tipo, sin resolución que suspenda legalmente la percepción de dichas rentas?</label></strong></label>
                             </td>
                             <td style="text-align: center;">
-                                <input type="radio" name="prg3" style="border: none; width: 80%; height: 20px;">
+                                <input type="radio" name="prg3" value="si" style="border: none; width: 80%; height: 20px;">
                             </td>
                             <td style="text-align: center;">
-                                <input type="radio" name="prg3" style="border: none; width: 80%; height: 20px;">
+                                <input type="radio" name="prg3" value="no" style="border: none; width: 80%; height: 20px;">
                             </td>
                         </tr>
                         <tr>
@@ -475,10 +477,10 @@
                                 <label><strong>d) ¿Fue destituido mediante proceso administrativo de alguno de los Organos del Estado; tiene pliego de cargo ejecutoriado o sentencia judicial por responsabilidad civil contra el Estado; o, existe en su contra Sentencia Condenatoria Ejecutoriada a pena privativa de libertad?</label></strong></label>
                             </td>
                             <td style="text-align: center;">
-                                <input type="radio" name="prg4" style="border: none; width: 80%; height: 20px;">
+                                <input type="radio" name="prg4" value="si" style="border: none; width: 80%; height: 20px;">
                             </td>
                             <td style="text-align: center;">
-                                <input type="radio" name="prg4" style="border: none; width: 80%; height: 20px;">
+                                <input type="radio" name="prg4" value="no" style="border: none; width: 80%; height: 20px;">
                             </td>
                         </tr>
                     </tbody>
@@ -494,9 +496,9 @@
                     Si el Ministerio de Turismo Sostenible, Culturas y Folklore y Gastronomía  evidencia falsedad en la información, se procederá de acuerdo a Ley.</i></p><br><br>
                     <p style="display: flex; text-align: center; justify-content: center; font-size: 15px;">.................................... <br> Firma </p>
                     <label for="">Lugar:</label>
-                    <input type="text">
+                    <input type="text" name="lugar_declaracion">
                     <label for="">Fecha:</label>
-                    <input type="date">
+                    <input type="date" name="fecha_declaracion">
             </div>
         </div>
         <div>
@@ -807,14 +809,14 @@
             //años
             function calcularAnios(){
                 const filas = tbodyExperiencia.querySelectorAll('.fila-experiencia');
-                let totalDias = 0;
+                let totalMeses = 0;
 
                 filas.forEach(fila => {
                     const inputDesde = fila.querySelector('input[name="desde[]"]');
                     const inputHasta = fila.querySelector('input[name="hasta[]"]');
-                    
+
                     if (!inputDesde || !inputHasta) return;
-                    
+
                     const desde = inputDesde.value;
                     const hasta = inputHasta.value;
 
@@ -823,23 +825,27 @@
                         const fechaHasta = new Date(hasta);
 
                         if(fechaHasta >= fechaDesde){
-                            const diffTime = fechaHasta - fechaDesde;
-                            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                            totalDias += diffDays;
+                            // cálculo por meses (más exacto)
+                            let meses = (fechaHasta.getFullYear() - fechaDesde.getFullYear()) * 12;
+                            meses += (fechaHasta.getMonth() - fechaDesde.getMonth());
+
+                            // si el día final es menor al inicial, resta 1 mes
+                            if (fechaHasta.getDate() < fechaDesde.getDate()) {
+                                meses -= 1;
+                            }
+
+                            totalMeses += meses;
                         }
                     }
                 });
 
-                const totalMeses = Math.floor(totalDias / 30.44); 
                 const anios = Math.floor(totalMeses / 12);
                 const meses = totalMeses % 12;
 
-                const totalAniosInput = document.getElementById('total-anios');
-                const totalMesesInput = document.getElementById('total-meses');
-
-                if(totalAniosInput) totalAniosInput.value = anios;
-                if(totalMesesInput) totalMesesInput.value = meses;
+                document.getElementById('total-anios').value = anios;
+                document.getElementById('total-meses').value = meses;
             }
+
 
             function addRowEventsExperiencia(row){
                 addRowEvents(row, tbodyExperiencia, createNewRowExperiencia);
@@ -854,6 +860,11 @@
                     });
                 });
             }
+
+        const btn = document.getElementById("btn-calcular");
+        if (btn) {
+            btn.addEventListener("click", calcularAnios);
+        }
             
             const firstRowExperiencia = tbodyExperiencia.querySelector('.fila-experiencia');
             if(firstRowExperiencia){

@@ -52,6 +52,21 @@ def init_database():
 
     cursor.execute(
         """
+        CREATE TABLE IF NOT EXISTS formacion_academica(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        persona_id INTEGER NOT NULL,
+        detalle TEXT NOT NULL,
+        institucion TEXT NOT NULL,
+        grado TEXT NOT NULL,
+        anio INTEGER,
+        n_folio TEXT,
+        FOREIGN KEY (persona_id) REFERENCES datos(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS experiencia(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         persona_id INTEGER NOT NULL,
@@ -66,6 +81,127 @@ def init_database():
     """
     )
 
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS cursos(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        persona_id INTEGER NOT NULL,
+        anio INTEGER,
+        area_capacitacion TEXT NOT NULL,
+        institucion TEXT NOT NULL,
+        nombre_capacitacion TEXT NOT NULL,
+        duracion_horas INTEGER,
+        FOREIGN KEY (persona_id) REFERENCES datos(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS paquetes_informaticos(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        persona_id INTEGER NOT NULL,
+        paquete TEXT NOT NULL,
+        nivel TEXT CHECK(nivel IN ('regular', 'bueno', 'muy_bueno')),
+        folio TEXT,
+        FOREIGN KEY (persona_id) REFERENCES datos(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS idiomas(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        persona_id INTEGER NOT NULL,
+        idioma TEXT NOT NULL,
+        lectura BOOLEAN DEFAULT 0,
+        escritura BOOLEAN DEFAULT 0,
+        conversacion BOOLEAN DEFAULT 0,
+        folio TEXT,
+        FOREIGN KEY (persona_id) REFERENCES datos(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS docencia(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        persona_id INTEGER NOT NULL,
+        anio INTEGER,
+        institucion TEXT NOT NULL,
+        nombre_curso TEXT NOT NULL,
+        duracion_horas INTEGER,
+        folio TEXT,
+        FOREIGN KEY (persona_id) REFERENCES datos(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS referencias(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        persona_id INTEGER NOT NULL,
+        nombre_apellido TEXT NOT NULL,
+        institucion TEXT NOT NULL,
+        puesto TEXT NOT NULL,
+        telefono TEXT,
+        FOREIGN KEY (persona_id) REFERENCES datos(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS registro_profesional(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        persona_id INTEGER NOT NULL,
+        nombre TEXT,
+        numero_registro TEXT,
+        FOREIGN KEY (persona_id) REFERENCES datos(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS pretension_salarial(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        persona_id INTEGER NOT NULL,
+        monto_bs TEXT,
+        FOREIGN KEY (persona_id) REFERENCES datos(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS incompatibilidades(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        persona_id INTEGER NOT NULL,
+        vinculacion_ministerio TEXT CHECK(vinculacion_ministerio IN ('si', 'no')),
+        otra_actividad TEXT CHECK(otra_actividad IN ('si', 'no')),
+        percibe_renta TEXT CHECK(percibe_renta IN ('si', 'no')),
+        destitucion_sentencia TEXT CHECK(destitucion_sentencia IN ('si', 'no')),
+        FOREIGN KEY (persona_id) REFERENCES datos(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS declaracion_jurada(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        persona_id INTEGER NOT NULL,
+        lugar TEXT,
+        fecha TEXT,
+        FOREIGN KEY (persona_id) REFERENCES datos(id) ON DELETE CASCADE
+        )
+        """
+    )
+    
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS users (
