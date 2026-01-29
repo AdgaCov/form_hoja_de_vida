@@ -448,7 +448,7 @@ def guardar_formulario():
                 if detalles[i].strip() and instituciones[i].strip():
                     cursor.execute(
                         """
-                        INSERT INTO formacion_academica (persona_id, detalles, isntituciones, grados, anios, folios)
+                        INSERT INTO formacion_academica (persona_id, detalle, institucion, grado, anio, n_folio)
                         VALUES (?, ?, ?, ?, ?, ?)
                         """,
                         (persona_id,
@@ -461,43 +461,44 @@ def guardar_formulario():
                     )
 
             #experiencia
-            nombre = request.form.getlist('nombre[]')
-            puesto = request.form.getlist('puesto[]')
-            breve = request.form.getlist('breve[]')
-            desde = request.form.getlist('desde[]')
-            hasta = request.form.getlist('hasta[]')
-            motivo = request.form.getlist('motivo[]')
+            # experiencia
+            nombres = request.form.getlist('nombre[]')
+            puestos = request.form.getlist('puesto[]')
+            breves = request.form.getlist('breve[]')
+            desdes = request.form.getlist('desde[]')
+            hastas = request.form.getlist('hasta[]')
+            motivos = request.form.getlist('motivo[]')
 
-            for i in range(len(nombre)):
-                if nombre[i].strip() and puesto[i].strip():
-                    cursor.execute(
-                        """
-                        INSERT INTO experiencia (persona_id, nombre, puesto, breve, desde, hasta, motivo)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                        """,
-                        (
-                            persona_id,
-                            nombre[i],
-                            puesto[i],
-                            breve[i],
-                            desde[i],
-                            hasta[i],
-                            motivo[i]
-                        )
-                    )
-            
+            for nombre, puesto, breve, desde, hasta, motivo in zip(nombres, puestos, breves, desdes, hastas, motivos):
+                # limpiamos
+                nombre = (nombre or "").strip()
+                puesto = (puesto or "").strip()
+                breve = (breve or "").strip()
+                desde = desde or None
+                hasta = hasta or None
+                motivo = (motivo or "").strip()
+
+                # si la fila está vacía, no insertamos
+                if not nombre and not puesto and not breve and not desde and not hasta and not motivo:
+                    continue
+
+                cursor.execute("""
+                    INSERT INTO experiencia (persona_id, nombre, puesto, breve, desde, hasta, motivo)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (persona_id, nombre, puesto, breve, desde, hasta, motivo))
+
             #cursos
-            anios_cursos = request.form.getlist['anio[]']
-            capacitaciones = request.form.getlist['cap[]']
-            instituciones_curso = request.form.getlist['inst[]']
-            nombres_cap = request.form.getlist['n_cap[]']
-            horas = request.form.getlist['horas[]']
+            anios_cursos = request.form.getlist('anio[]')
+            capacitaciones = request.form.getlist('cap[]')
+            instituciones_curso = request.form.getlist('inst[]')
+            nombres_cap = request.form.getlist('n_cap[]')
+            horas = request.form.getlist('horas[]')
 
             for i in range(len(capacitaciones)):
                 if capacitaciones[i].strip() and instituciones_curso[i].strip():
                     cursor.execute(
                         """
-                        INSERT INTO cursos (persona_id, anio, cap, inst, n_cap, horas)
+                        INSERT INTO cursos (persona_id, anio, area_capacitacion, institucion, nombre_capacitacion, duracion_horas)
                         VALUES (?, ?, ?, ?, ?, ?)
                         """,
                         (
@@ -807,6 +808,7 @@ def datos_personales_layout(pdf, persona):
 
     pdf.set_y(container_y + container_h + 8)
 
+print(NameError)
 
 
 if __name__ == "__main__":
