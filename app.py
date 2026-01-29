@@ -444,23 +444,23 @@ def guardar_formulario():
             anios = request.form.getlist('anio[]')
             folios = request.form.getlist('n_folio[]')
 
-            for i in range(len(detalles)):
-                if detalles[i].strip() and instituciones[i].strip():
-                    cursor.execute(
-                        """
-                        INSERT INTO formacion_academica (persona_id, detalle, institucion, grado, anio, n_folio)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                        """,
-                        (persona_id,
-                         detalles[i],
-                         instituciones[i],
-                         grados[i],
-                         int(anios[i]) if anios[i] else None,
-                         folios[i] if i < len(folios) else None
-                        )
-                    )
+            for detalle, institucion, grado, anio, folio in zip(detalles, instituciones, grados, anios, folios):
+                detalle = (detalle or "").strip()
+                institucion = (institucion or "").strip()
+                grado = (grado or "").strip()
+                anio = (anio or "").strip()
+                folio = (folio or "").strip()
 
-            #experiencia
+                if not detalle and not institucion and not grado and not anio and not folio:
+                    continue
+
+                cursor.execute(
+                    """
+                    INSERT INTO formacion_academica (persona_id, detalle, institucion, grado, anio, n_folio)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,(persona_id, detalle, institucion, grado, anio, folio)
+                )
+
             # experiencia
             nombres = request.form.getlist('nombre[]')
             puestos = request.form.getlist('puesto[]')
@@ -494,48 +494,51 @@ def guardar_formulario():
             nombres_cap = request.form.getlist('n_cap[]')
             horas = request.form.getlist('horas[]')
 
-            for i in range(len(capacitaciones)):
-                if capacitaciones[i].strip() and instituciones_curso[i].strip():
-                    cursor.execute(
-                        """
-                        INSERT INTO cursos (persona_id, anio, area_capacitacion, institucion, nombre_capacitacion, duracion_horas)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                        """,
-                        (
-                            persona_id,
-                            int(anios_cursos[i]) if i < len(anios_cursos) and anios_cursos[i] else None,
-                            capacitaciones[i],
-                            instituciones_curso[i],
-                            nombres_cap[i] if i < len(nombres_cap) else '',
-                            int(horas[i]) if i < len(horas) and horas[i] else None
-                        )
-                    )
+            for anio, cap, inst, n_cap, horas in zip(anios_cursos, capacitaciones, instituciones_curso, nombres_cap, horas):
+                anio = (anio or "").strip()
+                cap = (cap or "").strip()
+                inst = (inst or "").strip()
+                n_cap = (n_cap or "").strip()
+                horas = (horas or "").strip()
+                
+                if not anio and not cap and not inst and not n_cap and not horas:
+                    continue
+                
+                cursor.execute(
+                    """
+                    INSERT INTO cursos (persona_id, anio, area_capacitacion, institucion, nombre_capacitacion, duracion_horas)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,(persona_id, anio, cap, inst, n_cap, horas))
             
             #paquetes
             paquetes = request.form.getlist('paquete[]')
             folios_paquete = request.form.getlist('folio_paquete[]')
             
-            for i in range(len(paquetes)):
+            for paquete, folio_paquete in zip(paquetes, folios_paquete):
+                paquete = (paquete or "").strip()
+                folio_paquete = (folio_paquete or "").strip()
+
+                if not paquete and not folio_paquete:
+                    continue
+
                 if paquetes[i].strip():
                     nivel = request.form.get(f'nivel_{i}')
                     cursor.execute(
                         """
                         INSERT INTO paquetes_informaticos (persona_id, paquete, nivel, folio)
                         VALUES (?, ?, ?, ?)
-                        """,
-                        (
-                            persona_id,
-                            paquetes[i],
-                            nivel,
-                            folios_paquete[i] if i < len(folios_paquete) else None
-                        )
-                    )
+                        """,(persona_id, paquete, nivel, folio_paquete))
 
             #idiomas
             idiomas = request.form.getlist('idioma[]')
             folios_idioma = request.form.getlist('folio_idioma[]')
             
-            for i in range(len(idiomas)):
+            for idioma, folio_idioma in zip(idiomas, folios_idioma):
+                idioma = (idioma or "").strip()
+                folio_idioma = (folio_idioma or "").strip()
+                if not idioma and not folio_idioma:
+                    continue
+
                 if idiomas[i].strip():
                     lectura = 1 if f'lectura_{i}' in request.form else 0
                     escritura = 1 if f'escritura_{i}' in request.form else 0
@@ -545,16 +548,7 @@ def guardar_formulario():
                         """
                         INSERT INTO idiomas (persona_id, idioma, lectura, escritura, conversacion, folio)
                         VALUES (?, ?, ?, ?, ?, ?)
-                        """,
-                        (
-                            persona_id,
-                            idiomas[i],
-                            lectura,
-                            escritura,
-                            conversacion,
-                            folios_idioma[i] if i < len(folios_idioma) else None
-                        )
-                    )
+                        """, (persona_id, idioma, lectura, escritura, conversacion, folio_idioma))
             
             #docencia
             anios_docencia = request.form.getlist('anio_docencia[]')
@@ -719,7 +713,7 @@ def datos_personales_layout(pdf, persona):
     top = pdf.get_y() + 5
 
     page_w = pdf.w - left - right
-    box_h = 8
+    box_h = 15
     gap_y = 14
     label_gap = 4
 
