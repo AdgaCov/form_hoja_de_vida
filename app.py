@@ -6,6 +6,7 @@ from fpdf import FPDF
 from flask import send_file
 import os
 from io import BytesIO
+from itertools import zip_longest
 
 app = Flask(__name__)
 app.secret_key = "clave_secreta"
@@ -404,7 +405,6 @@ def eliminar(id):
 
 @app.route("/guardar_formulario", methods=["POST"])
 def guardar_formulario():
-    persona_id = None
     try:
         with get_db_connection() as conn:
         
@@ -444,12 +444,12 @@ def guardar_formulario():
             anios = request.form.getlist('anio[]')
             folios = request.form.getlist('n_folio[]')
 
-            for detalle, institucion, grado, anio, folio in zip(detalles, instituciones, grados, anios, folios):
-                detalle = (detalle or "").strip()
-                institucion = (institucion or "").strip()
-                grado = (grado or "").strip()
-                anio = (anio or "").strip()
-                folio = (folio or "").strip()
+            for detalle, institucion, grado, anio, folio in zip_longest(detalles, instituciones, grados, anios, folios, fillvalue=""):
+                detalle = detalle.strip()
+                institucion = institucion.strip()
+                grado = grado.strip()
+                anio = anio.strip()
+                folio = folio.strip()
 
                 if not detalle and not institucion and not grado and not anio and not folio:
                     continue
@@ -458,7 +458,9 @@ def guardar_formulario():
                     """
                     INSERT INTO formacion_academica (persona_id, detalle, institucion, grado, anio, n_folio)
                     VALUES (?, ?, ?, ?, ?, ?)
-                    """,(persona_id, detalle, institucion, grado, anio, folio)
+                    """,(persona_id, detalle, institucion, grado, 
+                        int(anio) if anio.isdigit() else None, 
+                        folio if folio else None)
                 )
 
             # experiencia
@@ -469,14 +471,14 @@ def guardar_formulario():
             hastas = request.form.getlist('hasta[]')
             motivos = request.form.getlist('motivo[]')
 
-            for nombre, puesto, breve, desde, hasta, motivo in zip(nombres, puestos, breves, desdes, hastas, motivos):
+            for nombre, puesto, breve, desde, hasta, motivo in zip_longest(nombres, puestos, breves, desdes, hastas, motivos, fillvalue=""):
                 # limpiamos
-                nombre = (nombre or "").strip()
-                puesto = (puesto or "").strip()
-                breve = (breve or "").strip()
-                desde = desde or None
-                hasta = hasta or None
-                motivo = (motivo or "").strip()
+                nombre = nombre.strip()
+                puesto = puesto.strip()
+                breve = breve.strip()
+                desde = desde.strip()
+                hasta = hasta.strip()
+                motivo = motivo.strip()
 
                 # si la fila está vacía, no insertamos
                 if not nombre and not puesto and not breve and not desde and not hasta and not motivo:
@@ -485,7 +487,7 @@ def guardar_formulario():
                 cursor.execute("""
                     INSERT INTO experiencia (persona_id, nombre, puesto, breve, desde, hasta, motivo)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, (persona_id, nombre, puesto, breve, desde, hasta, motivo))
+                """, (persona_id, nombre, puesto, breve, desde if desde else None, hasta if hasta else None, motivo))
 
             #cursos
             anios_cursos = request.form.getlist('anio[]')
@@ -494,12 +496,12 @@ def guardar_formulario():
             nombres_cap = request.form.getlist('n_cap[]')
             horas = request.form.getlist('horas[]')
 
-            for anio, cap, inst, n_cap, horas in zip(anios_cursos, capacitaciones, instituciones_curso, nombres_cap, horas):
-                anio = (anio or "").strip()
-                cap = (cap or "").strip()
-                inst = (inst or "").strip()
-                n_cap = (n_cap or "").strip()
-                horas = (horas or "").strip()
+            for anio, cap, inst, n_cap, horas in zip_longest(anios_cursos, capacitaciones, instituciones_curso, nombres_cap, horas, fillvalue=""):
+                anio = anio.strip()
+                cap = cap.strip()
+                inst = inst.strip()
+                n_cap = n_cap.strip()
+                horas = horas.strip()
                 
                 if not anio and not cap and not inst and not n_cap and not horas:
                     continue
@@ -508,184 +510,175 @@ def guardar_formulario():
                     """
                     INSERT INTO cursos (persona_id, anio, area_capacitacion, institucion, nombre_capacitacion, duracion_horas)
                     VALUES (?, ?, ?, ?, ?, ?)
-                    """,(persona_id, anio, cap, inst, n_cap, horas))
+                    """,(persona_id, 
+                        int(anio) if anio.isdigit() else None, cap, inst, n_cap, 
+                        int(horas) if horas.isdigit() else None))
             
             #paquetes
             paquetes = request.form.getlist('paquete[]')
             folios_paquete = request.form.getlist('folio_paquete[]')
             
-            for paquete, folio_paquete in zip(paquetes, folios_paquete):
-                paquete = (paquete or "").strip()
-                folio_paquete = (folio_paquete or "").strip()
+            for i, (paquete, folio) in enumerate(zip_longest(paquetes, folios_paquete, fillvalue="")):
+                paquete = paquete.strip()
+                folio = folio.strip()
+                nivel = request.form.get(f'nivel_{i}')
 
-                if not paquete and not folio_paquete:
+                if not (paquete and folio and nivel):
                     continue
 
-                if paquetes[i].strip():
-                    nivel = request.form.get(f'nivel_{i}')
-                    cursor.execute(
-                        """
-                        INSERT INTO paquetes_informaticos (persona_id, paquete, nivel, folio)
-                        VALUES (?, ?, ?, ?)
-                        """,(persona_id, paquete, nivel, folio_paquete))
+                cursor.execute(
+                    """
+                    INSERT INTO paquetes_informaticos (persona_id, paquete, nivel, folio)
+                    VALUES (?, ?, ?, ?)
+                    """,(persona_id, paquete, nivel, folio if folio else None))
 
             #idiomas
             idiomas = request.form.getlist('idioma[]')
             folios_idioma = request.form.getlist('folio_idioma[]')
             
-            for idioma, folio_idioma in zip(idiomas, folios_idioma):
-                idioma = (idioma or "").strip()
-                folio_idioma = (folio_idioma or "").strip()
-                if not idioma and not folio_idioma:
+            for i, (idioma, folio_idioma) in enumerate(zip_longest(idiomas, folios_idioma, fillvalue="")):
+                idioma = idioma.strip()
+                folio_idioma = folio_idioma.strip()
+                
+                lectura = 1 if request.form.get(f'lectura_{i}') else 0
+                escritura = 1 if request.form.get(f'escritura_{i}') else 0
+                conversacion = 1 if request.form.get(f'conversacion_{i}') else 0
+
+                if not (idioma or folio or lectura or escritura or conversacion):
                     continue
 
-                if idiomas[i].strip():
-                    lectura = 1 if f'lectura_{i}' in request.form else 0
-                    escritura = 1 if f'escritura_{i}' in request.form else 0
-                    conversacion = 1 if f'conversacion_{i}' in request.form else 0
-                    
-                    cursor.execute(
+                cursor.execute(
                         """
                         INSERT INTO idiomas (persona_id, idioma, lectura, escritura, conversacion, folio)
                         VALUES (?, ?, ?, ?, ?, ?)
-                        """, (persona_id, idioma, lectura, escritura, conversacion, folio_idioma))
+                        """, (persona_id, idioma, lectura, escritura, conversacion, folio if folio else None))
             
             #docencia
-            anios_docencia = request.form.getlist('anio_docencia[]')
-            instituciones_docencia = request.form.getlist('institución_docencia[]')
+            anios_doc = request.form.getlist('anio_docencia[]')
+            inst_doc = request.form.getlist('institucion_docencia[]')
             nombres_curso = request.form.getlist('nombre_curso[]')
-            horas_docencia = request.form.getlist('horas_docencia[]')
-            folios_docencia = request.form.getlist('folio_docencia[]')
+            horas_doc = request.form.getlist('horas_docencia[]')
+            folios_doc = request.form.getlist('folio_docencia[]')
 
-            for i in range(len(instituciones_docencia)):
-                if instituciones_docencia[i].strip() and nombres_curso[i].strip():
-                    cursor.execute(
-                        """
-                        INSERT INTO docencia (persona_id, anio, institucion, nombre_curso, duracion_horas, folio)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                        """,
-                        (
-                            persona_id,
-                            int(anios_docencia[i]) if i < len(anios_docencia) and anios_docencia[i] else None,
-                            instituciones_docencia[i],
-                            nombres_curso[i],
-                            int(horas_docencia[i]) if i < len(horas_docencia) and horas_docencia[i] else None,
-                            folios_docencia[i] if i < len(folios_docencia) else None
-                        )
-                    )
+            for anio, inst, curso, horas, folio in zip_longest(
+                anios_doc, inst_doc, nombres_curso, horas_doc, folios_doc, fillvalue=""
+            ):
+                anio = anio.strip()
+                inst = inst.strip()
+                curso = curso.strip()
+                horas = horas.strip()
+                folio = folio.strip()
+
+                if not (anio or inst or curso or horas or folio):
+                    continue
+
+                cursor.execute("""
+                    INSERT INTO docencia (persona_id, anio, institucion, nombre_curso, duracion_horas, folio)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (
+                    persona_id,
+                    int(anio) if anio.isdigit() else None,
+                    inst,
+                    curso,
+                    int(horas) if horas.isdigit() else None,
+                    folio if folio else None
+                ))
             
             #referencias
             nombres_ref = request.form.getlist('nombre_ref[]')
             instituciones_ref = request.form.getlist('institucion_ref[]')
             puestos_ref = request.form.getlist('puesto_ref[]')
             telefonos_ref = request.form.getlist('telefono_ref[]')
-            
-            for i in range(len(nombres_ref)):
-                if nombres_ref[i].strip() and instituciones_ref[i].strip():
-                    cursor.execute(
-                        """
-                        INSERT INTO referencias (persona_id, nombre_apellido, institucion, puesto, telefono)
-                        VALUES (?, ?, ?, ?, ?)
-                        """,
-                        (
-                            persona_id,
-                            nombres_ref[i],
-                            instituciones_ref[i],
-                            puestos_ref[i] if i < len(puestos_ref) else '',
-                            telefonos_ref[i] if i < len(telefonos_ref) else None
-                        )
-                    )
+
+            for nom, inst, puesto, tel in zip_longest(
+                nombres_ref, instituciones_ref, puestos_ref, telefonos_ref, fillvalue=""
+            ):
+                nom = nom.strip()
+                inst = inst.strip()
+                puesto = puesto.strip()
+                tel = tel.strip()
+
+                if not (nom or inst or puesto or tel):
+                    continue
+
+                cursor.execute("""
+                    INSERT INTO referencias (persona_id, nombre_apellido, institucion, puesto, telefono)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (
+                    persona_id,
+                    nom,
+                    inst,
+                    puesto,
+                    tel if tel else None
+                ))
+
             
             #registro profesional
-            nombre_registro = request.form.get('nombre_registro')
-            numero_registro = request.form.get('numero_registro')
-            
+            nombre_registro = (request.form.get('nombre_registro') or "").strip()
+            numero_registro = (request.form.get('numero_registro') or "").strip()
+
             if nombre_registro or numero_registro:
-                cursor.execute(
-                    """
+                cursor.execute("""
                     INSERT INTO registro_profesional (persona_id, nombre, numero_registro)
                     VALUES (?, ?, ?)
-                    """,
-                    (
-                        persona_id,
-                        nombre_registro,
-                        numero_registro
-                    )
-                )
+                """, (persona_id, nombre_registro, numero_registro))
 
             #pretension salarial
-            monto_bs = request.form.get('monto_bs')
-
+            monto_bs = (request.form.get('monto_bs') or "").strip()
             if monto_bs:
-                cursor.execute(
-                    """
+                cursor.execute("""
                     INSERT INTO pretension_salarial (persona_id, monto_bs)
                     VALUES (?, ?)
-                    """,
-                    (persona_id, monto_bs)
-                )
+                """, (persona_id, monto_bs))
 
             #incopatibilidades
-            cursor.execute(
-                """
-                INSERT INTO incompatibilidades (persona_id, vinculacion_ministerio, otra_actividad, percibe_renta, destitucion_sentencia)
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (
-                    persona_id,
-                    request.form.get('prg1'),
-                    request.form.get('prg2'),
-                    request.form.get('prg3'),
-                    request.form.get('prg4')
+            cursor.execute("""
+                INSERT INTO incompatibilidades (
+                    persona_id, vinculacion_ministerio, otra_actividad, percibe_renta, destitucion_sentencia
                 )
-            )
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                persona_id,
+                request.form.get('prg1'),
+                request.form.get('prg2'),
+                request.form.get('prg3'),
+                request.form.get('prg4')
+            ))
 
             #declaracion
-            lugar_declaracion = request.form.get('lugar_declaracion')
-            fecha_declaracion = request.form.get('fecha_declaracion')
-            
-            if lugar_declaracion or fecha_declaracion:
-                cursor.execute(
-                    """
+            lugar_decl = (request.form.get('lugar_declaracion') or "").strip()
+            fecha_decl = (request.form.get('fecha_declaracion') or "").strip()
+
+            if lugar_decl or fecha_decl:
+                cursor.execute("""
                     INSERT INTO declaracion_jurada (persona_id, lugar, fecha)
                     VALUES (?, ?, ?)
-                    """,
-                    (
-                        persona_id,
-                        lugar_declaracion,
-                        fecha_declaracion
-                    )
-                )
+                """, (persona_id, lugar_decl, fecha_decl))
 
             conn.commit()
-            flash('Formulario guardado exitosamente','success')
-
-
-            conn = get_db_connection()
-            persona = conn.execute("SELECT * FROM datos WHERE id = ?", (persona_id,)).fetchone()
-            experiencia = conn.execute("SELECT * FROM experiencia WHERE persona_id = ?",(persona_id,)).fetchone()
-            conn.close()
+            
+            with get_db_connection() as conn:
+                persona = conn.execute("SELECT * FROM datos WHERE id = ?", (persona_id,)).fetchone()
+                experiencia = conn.execute("SELECT * FROM experiencia WHERE persona_id = ?", (persona_id,)).fetchall()
 
             pdf_file = genera_pdf_formulario(persona, experiencia)
             nombre_pdf = f"FORMULARIO_HV_{persona_id}.pdf"
+
+            flash('Formulario guardado exitosamente', 'success')
 
             return send_file(
                 pdf_file,
                 as_attachment=True,
                 download_name=nombre_pdf,
                 mimetype="application/pdf"
-            )           
+            )
 
-        
-        flash('Formulario guardado correctamente', 'success')
-        return redirect(url_for('index'))
-    
-    except sqlite3.IntegrityError as e:
+    except sqlite3.IntegrityError:
         flash('El correo ya existe', 'error')
         return redirect(url_for('index'))
-    
+
     except Exception as e:
-        flash(f'Error al guardar: {str(e)}','error')
+        flash(f'Error al guardar: {str(e)}', 'error')
         return redirect(url_for('index'))
 
 def genera_pdf_formulario(persona, experiencia):
@@ -801,9 +794,6 @@ def datos_personales_layout(pdf, persona):
 
 
     pdf.set_y(container_y + container_h + 8)
-
-print(NameError)
-
 
 if __name__ == "__main__":
     app.run(debug=True)
