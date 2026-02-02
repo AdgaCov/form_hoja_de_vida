@@ -3,250 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalles</title>
-</head>
-<body>
-    <nav style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; ">
-        <div class="imagen">
-            <img src="{{url_for('static', filename='image.png')}}" alt="LOGO MTSCFYG" style="width: 250px;">
-        </div>
-    </nav>
-    <div style="display: flex; align-items: center; justify-content: center;">
-        <label style="font-size: 20px;"><strong>FORMULARIO HOJA DE VIDA</strong></label>
-    </div>
-<div class="container">
-            <div class="header">
-                I. DATOS PERSONALES
-            </div>
-            <div class="form-content">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="">Nombres:</label>
-                        <input type="text" value="{{ persona.nombres }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="">Apellido Paterno:</label>
-                        <input type="text" value="{{ persona.ap_pat }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="">Apellido Materno:</label>
-                        <input type="text" value="{{ persona.ap_mat }}" disabled>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="">Cédula de Identidad:</label>
-                        <input type="text" value="{{ persona.ci }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="">Expedido en:</label>
-                        <input type="text" value="{{ persona.exp }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Estado Civil:</label>
-                        <input type="text" value="{{ persona.est_civil }}" disabled>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Fecha de Nacimiento:</label>
-                        <input type="date" value="{{ persona.fecha_nac }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Lugar:</label>
-                        <input type="text" value="{{ persona.lugar }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="">Nacionalidad</label>
-                        <input type="text" value="{{ persona.nacio }}" disabled>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group" style="flex: 2;">
-                        <label for="">Dirección/ Domicilio:</label>
-                        <input type="text" value="{{ persona.direccion }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="">Ciudad:</label>
-                        <input type="text" value="{{ persona.ciudad }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <div class="box">
-                            <div>
-                                <label for="">Grupo Sanguíneo:</label>
-                                <input type="text" value="{{ persona.gr_san }}" disabled>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="">Teléfono Celular:</label>
-                        <input type="number" value="{{ persona.tcel }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="">Teléfono Fijo:</label>
-                        <input type="number" value="{{ persona.tfijo }}" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="">Correo Electrónico:</label>
-                        <input type="email" value="{{ persona.correo }}" disabled>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="">N° Libreta de Servicio Militar:</label>
-                        <input type="text" value="{{ persona.n_libser }}" disabled>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="container">
-            <div class="header">III. EXPERIENCIA (Detalle los puestos y instituciones o empresas en las que ejerció funciones, en orden cronológico empezando por la más reciente)</div>
-            <div class="form-content">
-                <table id="tabla-experiencia">
-                    <thead>
-                        <tr>
-                            <th>+</th>
-                            <th>Nombre de la Institución o Empresa</th>
-                            <th>Puesto</th>
-                            <th>Breve descripción de funciones</th>
-                            <th>Desde</th>
-                            <th>Hasta</th>
-                            <th>Motivo de retiro o si trabaja actualmente</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-experiencia">
-                        {% if experiencia %}
-                            {% for exp in experiencia %}
-                            <tr class="fila-exp">
-                                <td style="text-align: center;">
-                                    <input type="checkbox" class="chk-exp" checked>
-                                </td>
-                                <td><textarea rows="1" class="auto-resize" disabled>{{ exp.nombre }}</textarea></td>
-                                <td><textarea rows="1" class="auto-resize" disabled>{{ exp.puesto }}</textarea></td>
-                                <td><textarea rows="1" class="auto-resize" disabled>{{ exp.breve }}</textarea></td>
-                                <td><input type="date" class="exp-desde" value="{{ exp.desde }}" disabled></td>
-                                <td><input type="date" class="exp-hasta" value="{{ exp.hasta }}" disabled></td>
-                                <td><textarea rows="1" class="auto-resize" disabled>{{ exp.motivo }}</textarea></td>
-                            </tr>
-                            {% endfor %}
-                        {% endif %}
-                    </tbody>
-                    <div class="form-row" style="margin-top: 15px; align-items: center;">
-                        <div class="form-group" style="flex: unset;">
-                            <button type="button" id="btn-recalcular">Recalcular solo seleccionados</button>
-                        </div>
-
-                        <div class="form-group" style="flex: unset;">
-                            <button type="button" id="btn-seleccionar-todos">Seleccionar todos</button>
-                        </div>
-
-                        <div class="form-group" style="flex: unset;">
-                            <button type="button" id="btn-quitar-seleccion">Quitar selección</button>
-                        </div>
-                    </div>
-                    <div class="form-row" style="margin-top: 10px; align-items: center;">
-                        <div class="form-group" style="flex: unset;">
-                            <label><strong>Resumen total:</strong></label>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Años:</label>
-                            <input type="number" id="total-anios" disabled>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Meses:</label>
-                            <input type="number" id="total-meses" disabled>
-                        </div>
-                    </div>
-                </table>
-            </div>
-        </div>
-        <div style="display:flex; justify-content:center; gap:10px; margin: 15px 0;">
-            <button type="button" onclick="window.print()" class="btn-print">
-            Imprimir / Guardar PDF
-            </button>
-        </div>
-        
-<script>
-function calcularAniosSeleccionados() {
-  const filas = document.querySelectorAll("#tbody-experiencia tr.fila-exp");
-  let totalMeses = 0;
-
-  filas.forEach(fila => {
-    const chk = fila.querySelector(".chk-exp");
-    if (!chk || !chk.checked) return;
-
-    const desdeInput = fila.querySelector(".exp-desde");
-    const hastaInput = fila.querySelector(".exp-hasta");
-
-    if (!desdeInput || !hastaInput) return;
-
-    const desde = desdeInput.value;
-    const hasta = hastaInput.value;
-
-    if (!desde || !hasta) return;
-
-    const fechaDesde = new Date(desde);
-    const fechaHasta = new Date(hasta);
-
-    if (isNaN(fechaDesde.getTime()) || isNaN(fechaHasta.getTime())) return;
-    if (fechaHasta < fechaDesde) return;
-
-    // calcular diferencia en meses
-    let meses = (fechaHasta.getFullYear() - fechaDesde.getFullYear()) * 12;
-    meses += (fechaHasta.getMonth() - fechaDesde.getMonth());
-
-    // ajuste por días
-    if (fechaHasta.getDate() < fechaDesde.getDate()) {
-      meses -= 1;
-    }
-
-    totalMeses += Math.max(0, meses);
-  });
-
-  const anios = Math.floor(totalMeses / 12);
-  const meses = totalMeses % 12;
-
-  document.getElementById("total-anios").value = anios;
-  document.getElementById("total-meses").value = meses;
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  // calcular al cargar
-  calcularAniosSeleccionados();
-
-  // botón recalcular
-  document.getElementById("btn-recalcular").addEventListener("click", calcularAniosSeleccionados);
-
-  // seleccionar todos
-  document.getElementById("btn-seleccionar-todos").addEventListener("click", () => {
-    document.querySelectorAll(".chk-exp").forEach(c => c.checked = true);
-    calcularAniosSeleccionados();
-  });
-
-  // quitar selección
-  document.getElementById("btn-quitar-seleccion").addEventListener("click", () => {
-    document.querySelectorAll(".chk-exp").forEach(c => c.checked = false);
-    calcularAniosSeleccionados();
-  });
-
-  // recalcular cuando cambias checks
-  document.querySelectorAll(".chk-exp").forEach(chk => {
-    chk.addEventListener("change", calcularAniosSeleccionados);
-  });
-
-});
-</script>
-
-<style>
+    <title>Detalles - {{ persona.nombres }} {{ persona.ap_pat }}</title>
+    <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
             padding: 20px;
+            background-color: #f5f5f5;
         }
+        
+        .navbar {
+            background-color: #003366;
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar h1 {
+            font-size: 20px;
+            margin: 0;
+        }
+        
+        .btn-back {
+            background-color: white;
+            color: #003366;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .btn-back:hover {
+            background-color: #e0e0e0;
+        }
+        
         .container{
             max-width: 900px;
             margin: 0 auto;
@@ -254,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
             border: 2px solid;
             margin-top: 20px;
         }
+        
         .header{
             background-color: #003366;
             color: white;
@@ -261,25 +55,31 @@ document.addEventListener("DOMContentLoaded", () => {
             font-weight: bold;
             font-size: 18px;
         }
+        
         .form-content{
             padding: 20px;
         }
+        
         .form-row{
             display: flex;
             gap: 15px;
             margin-bottom: 15px;
             align-items: flex-start;
         }
+        
         .form-group{
             flex: 1;
             display: flex;
             flex-direction: column;
         }
+        
         label{
             font-size: 12px;
             margin-bottom: 5px;
             color: #333;
+            font-weight: bold;
         }
+        
         input[type="text"], input[type="date"], input[type="email"], input[type="number"]{
             padding: 6px;
             border: 1px solid #000;
@@ -287,34 +87,475 @@ document.addEventListener("DOMContentLoaded", () => {
             width: 100%;
             box-sizing: border-box;
         }
+        
+        input:disabled {
+            background-color: #f9f9f9;
+        }
+        
         table{
             width: 100%;
             border-collapse: collapse;
+            margin-top: 10px;
         }
+        
         thead{
             background-color: #003366;
             color: white;
         }
+        
         th{
             border: 1px solid #003366;
             padding: 10px;
             font-size: 11px;
             text-align: center;
-            width: 200px;
         }
+        
         td{
             border: 1px solid #000;
             padding: 8px;
+            font-size: 12px;
         }
-        textarea{
-            border: none;
+        
+        .checkbox-cell {
+            text-align: center;
+            width: 40px;
+        }
+        
+        .checkbox-cell input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .resumen-box {
+            background-color: #e8f4f8;
+            border: 2px solid #003366;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        
+        .resumen-box h3 {
+            color: #003366;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .resumen-valores {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .resumen-valores .valor {
+            flex: 1;
+        }
+        
+        .resumen-valores .valor label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .resumen-valores .valor input {
             width: 100%;
-            padding: 4px;
-            resize: none;
-            overflow: hidden;
-            font-family: inherit;
-            font-size: inherit;
+            padding: 10px;
+            border: 2px solid #003366;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #003366;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #004d99;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .btn-warning {
+            background-color: #ffc107;
+            color: #333;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        
+        @media print {
+            .navbar,
+            .btn-container,
+            .btn,
+            .checkbox-cell,
+            .no-print {
+                display: none !important;
+            }
+            
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            
+            .container {
+                border: 1px solid #000;
+                margin: 10px 0;
+                page-break-inside: avoid;
+            }
+        }
+        
+        .info-text {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
+</head>
+<body>
+    <div class="navbar no-print">
+        <h1>Detalles - {{ persona.nombres }} {{ persona.ap_pat }} {{ persona.ap_mat }}</h1>
+        <a href="{{ url_for('usuarios') }}" class="btn-back">← Volver</a>
+    </div>
+
+    <!-- I. DATOS PERSONALES -->
+    <div class="container">
+        <div class="header">I. DATOS PERSONALES</div>
+        <div class="form-content">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nombres:</label>
+                    <input type="text" value="{{ persona.nombres }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Apellido Paterno:</label>
+                    <input type="text" value="{{ persona.ap_pat }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Apellido Materno:</label>
+                    <input type="text" value="{{ persona.ap_mat }}" disabled>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Cédula de Identidad:</label>
+                    <input type="text" value="{{ persona.ci }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Expedido:</label>
+                    <input type="text" value="{{ persona.exp }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Estado Civil:</label>
+                    <input type="text" value="{{ persona.est_civil }}" disabled>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Fecha de Nacimiento:</label>
+                    <input type="date" value="{{ persona.fecha_nac }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Lugar:</label>
+                    <input type="text" value="{{ persona.lugar }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Nacionalidad:</label>
+                    <input type="text" value="{{ persona.nacio }}" disabled>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex: 2;">
+                    <label>Dirección/Domicilio:</label>
+                    <input type="text" value="{{ persona.direccion }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Ciudad:</label>
+                    <input type="text" value="{{ persona.ciudad }}" disabled>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Grupo Sanguíneo:</label>
+                    <input type="text" value="{{ persona.gr_san }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono Celular:</label>
+                    <input type="text" value="{{ persona.tcel }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono Fijo:</label>
+                    <input type="text" value="{{ persona.tfijo or '' }}" disabled>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" value="{{ persona.correo }}" disabled>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>N° Libreta de Servicio Militar:</label>
+                    <input type="text" value="{{ persona.n_libser or '' }}" disabled>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- III. EXPERIENCIA LABORAL -->
+    <div class="container">
+        <div class="header">III. EXPERIENCIA LABORAL</div>
+        <div class="form-content">
+            {% if experiencia %}
+            <table id="tabla-experiencia">
+                <thead>
+                    <tr>
+                        <th class="no-print checkbox-cell">✓</th>
+                        <th>Institución/Empresa</th>
+                        <th>Cargo</th>
+                        <th>Breve descripción</th>
+                        <th>Desde</th>
+                        <th>Hasta</th>
+                        <th>Motivo de retiro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exp in experiencia %}
+                    <tr class="fila-exp">
+                        <td class="checkbox-cell no-print">
+                            <input type="checkbox" class="chk-exp" checked>
+                        </td>
+                        <td>{{ exp.nombre }}</td>
+                        <td>{{ exp.puesto }}</td>
+                        <td>{{ exp.breve }}</td>
+                        <td class="exp-desde" data-fecha="{{ exp.desde or '' }}">{{ exp.desde or '' }}</td>
+                        <td class="exp-hasta" data-fecha="{{ exp.hasta or '' }}">{{ exp.hasta or '' }}</td>
+                        <td>{{ exp.motivo }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="resumen-box">
+                <h3>Resumen de Experiencia Laboral</h3>
+                <div class="btn-container no-print">
+                    <button type="button" class="btn btn-primary" id="btn-seleccionar-todos">Seleccionar Todos</button>
+                    <button type="button" class="btn btn-warning" id="btn-quitar-seleccion">Quitar Selección</button>
+                    <button type="button" class="btn btn-success" id="btn-recalcular">Recalcular</button>
+                    <button type="button" class="btn btn-success" id="btn-guardar-resumen">Guardar Resumen</button>
+                </div>
+                <div class="resumen-valores">
+                    <div class="valor">
+                        <label>Años:</label>
+                        <input type="number" id="total-anios" value="{{ resumen.total_anios if resumen else 0 }}" readonly>
+                    </div>
+                    <div class="valor">
+                        <label>Meses:</label>
+                        <input type="number" id="total-meses" value="{{ resumen.total_meses if resumen else 0 }}" readonly>
+                    </div>
+                </div>
+                {% if resumen %}
+                <p class="info-text">Último cálculo: {{ resumen.fecha_calculo }}</p>
+                {% endif %}
+            </div>
+            {% else %}
+            <p style="text-align: center; color: #666; padding: 20px;">Sin registros de experiencia laboral</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="btn-container no-print" style="margin: 25px 0;">
+        <button type="button" class="btn btn-primary" id="btn-imprimir">Imprimir</button>
+        <button type="button" class="btn btn-primary" id="btn-descargar-pdf">Descargar PDF</button>
+    </div>
+
+    <script>
+        console.log('🚀 Script cargado correctamente');
+        const personaId = {{ persona.id }};
+        console.log('Persona ID:', personaId);
+
+        // Función para calcular años y meses
+        function calcularAniosSeleccionados() {
+            console.log('📊 Calculando años...');
+            const filas = document.querySelectorAll(".fila-exp");
+            let totalMeses = 0;
+
+            filas.forEach(fila => {
+                const chk = fila.querySelector(".chk-exp");
+                if (!chk || !chk.checked) return;
+
+                const desdeCell = fila.querySelector(".exp-desde");
+                const hastaCell = fila.querySelector(".exp-hasta");
+
+                if (!desdeCell || !hastaCell) return;
+
+                const desde = desdeCell.dataset.fecha;
+                const hasta = hastaCell.dataset.fecha;
+
+                if (!desde || !hasta) return;
+
+                const fechaDesde = new Date(desde);
+                const fechaHasta = new Date(hasta);
+
+                if (isNaN(fechaDesde.getTime()) || isNaN(fechaHasta.getTime())) return;
+                if (fechaHasta < fechaDesde) return;
+
+                let meses = (fechaHasta.getFullYear() - fechaDesde.getFullYear()) * 12;
+                meses += (fechaHasta.getMonth() - fechaDesde.getMonth());
+
+                if (fechaHasta.getDate() < fechaDesde.getDate()) {
+                    meses -= 1;
+                }
+
+                totalMeses += Math.max(0, meses);
+            });
+
+            const anios = Math.floor(totalMeses / 12);
+            const meses = totalMeses % 12;
+
+            document.getElementById("total-anios").value = anios;
+            document.getElementById("total-meses").value = meses;
+            console.log('✅ Cálculo completado:', anios, 'años,', meses, 'meses');
+        }
+
+        // Eventos
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log('✅ DOM cargado');
+            
+            calcularAniosSeleccionados();
+
+            // Recalcular
+            const btnRecalcular = document.getElementById("btn-recalcular");
+            if (btnRecalcular) {
+                console.log('✅ Botón recalcular encontrado');
+                btnRecalcular.addEventListener("click", function() {
+                    console.log('🔄 Recalculando...');
+                    calcularAniosSeleccionados();
+                });
+            } else {
+                console.error('❌ Botón recalcular NO encontrado');
+            }
+
+            // Seleccionar todos
+            const btnSeleccionarTodos = document.getElementById("btn-seleccionar-todos");
+            if (btnSeleccionarTodos) {
+                console.log('✅ Botón seleccionar todos encontrado');
+                btnSeleccionarTodos.addEventListener("click", function() {
+                    console.log('✔️ Seleccionando todos...');
+                    document.querySelectorAll(".chk-exp").forEach(c => c.checked = true);
+                    calcularAniosSeleccionados();
+                });
+            } else {
+                console.error('❌ Botón seleccionar todos NO encontrado');
+            }
+
+            // Quitar selección
+            const btnQuitarSeleccion = document.getElementById("btn-quitar-seleccion");
+            if (btnQuitarSeleccion) {
+                console.log('✅ Botón quitar selección encontrado');
+                btnQuitarSeleccion.addEventListener("click", function() {
+                    console.log('❎ Quitando selección...');
+                    document.querySelectorAll(".chk-exp").forEach(c => c.checked = false);
+                    calcularAniosSeleccionados();
+                });
+            } else {
+                console.error('❌ Botón quitar selección NO encontrado');
+            }
+
+            // Guardar resumen
+            const btnGuardarResumen = document.getElementById("btn-guardar-resumen");
+            if (btnGuardarResumen) {
+                console.log('✅ Botón guardar resumen encontrado');
+                btnGuardarResumen.addEventListener("click", async function() {
+                    console.log('💾 Guardando resumen...');
+                    const anios = document.getElementById("total-anios").value;
+                    const meses = document.getElementById("total-meses").value;
+
+                    try {
+                        const response = await fetch('/guardar_resumen/' + personaId, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ anios: parseInt(anios), meses: parseInt(meses) })
+                        });
+
+                        const data = await response.json();
+                        console.log('📨 Respuesta del servidor:', data);
+                        
+                        if (data.success) {
+                            alert('✅ Resumen guardado correctamente');
+                            location.reload();
+                        } else {
+                            alert('❌ Error: ' + data.message);
+                        }
+                    } catch (error) {
+                        console.error('❌ Error en fetch:', error);
+                        alert('❌ Error al guardar: ' + error);
+                    }
+                });
+            } else {
+                console.error('❌ Botón guardar resumen NO encontrado');
+            }
+
+            // Recalcular cuando cambian checks
+            document.querySelectorAll(".chk-exp").forEach(chk => {
+                chk.addEventListener("change", calcularAniosSeleccionados);
+            });
+
+            // Botón imprimir
+            const btnImprimir = document.getElementById("btn-imprimir");
+            if (btnImprimir) {
+                console.log('✅ Botón imprimir encontrado');
+                btnImprimir.addEventListener("click", function() {
+                    console.log('🖨️ Imprimiendo...');
+                    window.print();
+                });
+            } else {
+                console.error('❌ Botón imprimir NO encontrado');
+            }
+
+            // Botón descargar PDF
+            const btnDescargarPdf = document.getElementById("btn-descargar-pdf");
+            if (btnDescargarPdf) {
+                console.log('✅ Botón descargar PDF encontrado');
+                btnDescargarPdf.addEventListener("click", function() {
+                    console.log('📄 Descargando PDF...');
+                    window.location.href = '/imprimir_detalles/' + personaId;
+                });
+            } else {
+                console.error('❌ Botón descargar PDF NO encontrado');
+            }
+        });
+    </script>
 </body>
 </html>

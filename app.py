@@ -2,11 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
-from fpdf import FPDF
 from flask import send_file
 import os
 from io import BytesIO
 from itertools import zip_longest
+from templates.pdf_generator import genera_pdf_formulario
+from templates.pdf_generator_detalles import genera_pdf_detalles
 
 app = Flask(__name__)
 app.secret_key = "clave_secreta"
@@ -74,8 +75,8 @@ def init_database():
         nombre TEXT NOT NULL,
         puesto TEXT NOT NULL,
         breve TEXT NOT NULL,
-        desde TEXT NOT NULL,
-        hasta TEXT NOT NULL,
+        desde TEXT,
+        hasta TEXT,
         motivo TEXT NOT NULL,
         FOREIGN KEY (persona_id) REFERENCES datos(id)
         )
@@ -212,6 +213,19 @@ def init_database():
         );
         """
     )
+
+    cursor.execute(
+    """
+    CREATE TABLE IF NOT EXISTS resumen_experiencia(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    persona_id INTEGER NOT NULL,
+    total_anios INTEGER DEFAULT 0,
+    total_meses INTEGER DEFAULT 0,
+    fecha_calculo TEXT,
+    FOREIGN KEY (persona_id) REFERENCES datos(id) ON DELETE CASCADE
+    )
+    """
+)
 
     cursor.execute("SELECT * FROM users WHERE username = ?",('admin',))
     if cursor.fetchone() is None:
@@ -368,20 +382,106 @@ def eliminar_usuario(id):
 @login_required
 def detalles(id):
     conn = get_db_connection()
-    persona = conn.execute("SELECT * FROM datos WHERE id = ?", (id, )).fetchone()
-    experiencia = conn.execute(
-        """
-        SELECT * FROM experiencia
-        WHERE persona_id = ?
-        ORDER BY id DESC
-        """, (id,)).fetchall()
+    persona = conn.execute("SELECT * FROM datos WHERE id = ?", (id,)).fetchone()
     
-    conn.close()
-
     if persona is None:
+        conn.close()
         flash("Persona no encontrada", "error")
         return redirect(url_for('usuarios'))
-    return render_template("detalles.html", persona=persona, experiencia=experiencia)
+    
+    # Obtener TODOS los datos
+    experiencia = conn.execute("SELECT * FROM experiencia WHERE persona_id = ? ORDER BY desde DESC", (id,)).fetchall()
+    formacion = conn.execute("SELECT * FROM formacion_academica WHERE persona_id = ?", (id,)).fetchall()
+    cursos = conn.execute("SELECT * FROM cursos WHERE persona_id = ?", (id,)).fetchall()
+    paquetes = conn.execute("SELECT * FROM paquetes_informaticos WHERE persona_id = ?", (id,)).fetchall()
+    idiomas = conn.execute("SELECT * FROM idiomas WHERE persona_id = ?", (id,)).fetchall()
+    docencia = conn.execute("SELECT * FROM docencia WHERE persona_id = ?", (id,)).fetchall()
+    referencias = conn.execute("SELECT * FROM referencias WHERE persona_id = ?", (id,)).fetchall()
+    registro = conn.execute("SELECT * FROM registro_profesional WHERE persona_id = ?", (id,)).fetchone()
+    pretension = conn.execute("SELECT * FROM pretension_salarial WHERE persona_id = ?", (id,)).fetchone()
+    incompatibilidades = conn.execute("SELECT * FROM incompatibilidades WHERE persona_id = ?", (id,)).fetchone()
+    declaracion = conn.execute("SELECT * FROM declaracion_jurada WHERE persona_id = ?", (id,)).fetchone()
+    resumen = conn.execute("SELECT * FROM resumen_experiencia WHERE persona_id = ? ORDER BY id DESC LIMIT 1", (id,)).fetchone()
+    
+    conn.close()
+    
+    return render_template("detalles.html", 
+                        persona=persona,
+                        experiencia=experiencia,
+                        formacion=formacion,
+                        cursos=cursos,
+                        paquetes=paquetes,
+                        idiomas=idiomas,
+                        docencia=docencia,
+                        referencias=referencias,
+                        registro=registro,
+                        pretension=pretension,
+                        incompatibilidades=incompatibilidades,
+                        declaracion=declaracion,
+                        resumen=resumen)
+
+@app.route('/guardar_resumen/<int:id>', methods=['POST'])
+@login_required
+def guardar_resumen(id):
+    try:
+        anios = request.json.get('anios', 0)
+        meses = request.json.get('meses', 0)
+        
+        from datetime import datetime
+        fecha_actual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Insertar nuevo resumen
+        cursor.execute("""
+            INSERT INTO resumen_experiencia (persona_id, total_anios, total_meses, fecha_calculo)
+            VALUES (?, ?, ?, ?)
+        """, (id, anios, meses, fecha_actual))
+        
+        conn.commit()
+        conn.close()
+        
+        return {'success': True, 'message': 'Resumen guardado correctamente'}
+    except Exception as e:
+        return {'success': False, 'message': str(e)}, 400
+    
+@app.route('/imprimir_detalles/<int:id>')
+@login_required
+def imprimir_detalles(id):
+    conn = get_db_connection()
+    
+    persona_row = conn.execute("SELECT * FROM datos WHERE id = ?", (id,)).fetchone()
+    persona = dict(persona_row) if persona_row else None
+    
+    if not persona:
+        conn.close()
+        flash("Persona no encontrada", "error")
+        return redirect(url_for('usuarios'))
+    
+    experiencia_rows = conn.execute(
+        "SELECT * FROM experiencia WHERE persona_id = ? ORDER BY desde DESC", 
+        (id,)
+    ).fetchall()
+    experiencia = [dict(row) for row in experiencia_rows]
+    
+    resumen_row = conn.execute(
+        "SELECT * FROM resumen_experiencia WHERE persona_id = ? ORDER BY id DESC LIMIT 1", 
+        (id,)
+    ).fetchone()
+    resumen = dict(resumen_row) if resumen_row else None
+    
+    conn.close()
+    
+    pdf_file = genera_pdf_detalles(persona, experiencia, resumen)
+    nombre_pdf = f"DETALLES_HV_{id}.pdf"
+    
+    return send_file(
+        pdf_file,
+        as_attachment=True,
+        download_name=nombre_pdf,
+        mimetype="application/pdf"
+    )
 
 @app.route("/eliminar/<int:id>", methods=['POST'])
 @login_required
@@ -402,6 +502,95 @@ def eliminar(id):
     except Exception as e:
         flash(f"Error al eliminar: {str(e)}", 'error')
         return redirect(url_for('usuarios'))
+
+def obtener_datos_completos(persona_id):
+    """Obtiene todos los datos de una persona y los convierte a diccionarios"""
+    conn = get_db_connection()
+    
+    # Datos personales
+    persona_row = conn.execute("SELECT * FROM datos WHERE id = ?", (persona_id,)).fetchone()
+    persona = dict(persona_row) if persona_row else None
+    
+    # Experiencia
+    experiencia_rows = conn.execute(
+        "SELECT * FROM experiencia WHERE persona_id = ? ORDER BY id DESC", 
+        (persona_id,)
+    ).fetchall()
+    experiencia = [dict(row) for row in experiencia_rows]
+    
+    # Formación académica
+    formacion_rows = conn.execute(
+        "SELECT * FROM formacion_academica WHERE persona_id = ?", 
+        (persona_id,)
+    ).fetchall()
+    formacion = [dict(row) for row in formacion_rows]
+    
+    # Cursos
+    cursos_rows = conn.execute(
+        "SELECT * FROM cursos WHERE persona_id = ?", 
+        (persona_id,)
+    ).fetchall()
+    cursos = [dict(row) for row in cursos_rows]
+    
+    # Paquetes informáticos
+    paquetes_rows = conn.execute(
+        "SELECT * FROM paquetes_informaticos WHERE persona_id = ?", 
+        (persona_id,)
+    ).fetchall()
+    paquetes = [dict(row) for row in paquetes_rows]
+    
+    # Idiomas
+    idiomas_rows = conn.execute(
+        "SELECT * FROM idiomas WHERE persona_id = ?", 
+        (persona_id,)
+    ).fetchall()
+    idiomas = [dict(row) for row in idiomas_rows]
+    
+    # Docencia
+    docencia_rows = conn.execute(
+        "SELECT * FROM docencia WHERE persona_id = ?", 
+        (persona_id,)
+    ).fetchall()
+    docencia = [dict(row) for row in docencia_rows]
+    
+    # Referencias
+    referencias_rows = conn.execute(
+        "SELECT * FROM referencias WHERE persona_id = ?", 
+        (persona_id,)
+    ).fetchall()
+    referencias = [dict(row) for row in referencias_rows]
+    
+    # Registro profesional
+    registro_row = conn.execute(
+        "SELECT * FROM registro_profesional WHERE persona_id = ?", 
+        (persona_id,)
+    ).fetchone()
+    registro = dict(registro_row) if registro_row else None
+    
+    # Pretensión salarial
+    pretension_row = conn.execute(
+        "SELECT * FROM pretension_salarial WHERE persona_id = ?", 
+        (persona_id,)
+    ).fetchone()
+    pretension = dict(pretension_row) if pretension_row else None
+    
+    # Incompatibilidades
+    incompatibilidades_row = conn.execute(
+        "SELECT * FROM incompatibilidades WHERE persona_id = ?", 
+        (persona_id,)
+    ).fetchone()
+    incompatibilidades = dict(incompatibilidades_row) if incompatibilidades_row else None
+    
+    # Declaración jurada
+    declaracion_row = conn.execute(
+        "SELECT * FROM declaracion_jurada WHERE persona_id = ?", 
+        (persona_id,)
+    ).fetchone()
+    declaracion = dict(declaracion_row) if declaracion_row else None
+    
+    conn.close()
+    
+    return persona, experiencia, formacion, cursos, paquetes, idiomas, docencia, referencias, registro, pretension, incompatibilidades, declaracion
 
 @app.route("/guardar_formulario", methods=["POST"])
 def guardar_formulario():
@@ -441,7 +630,7 @@ def guardar_formulario():
             detalles = request.form.getlist('detalle[]')
             instituciones = request.form.getlist('institucion[]')
             grados = request.form.getlist('grado[]')
-            anios = request.form.getlist('anio[]')
+            anios = request.form.getlist('anio_formacion[]')
             folios = request.form.getlist('n_folio[]')
 
             for detalle, institucion, grado, anio, folio in zip_longest(detalles, instituciones, grados, anios, folios, fillvalue=""):
@@ -490,7 +679,7 @@ def guardar_formulario():
                 """, (persona_id, nombre, puesto, breve, desde if desde else None, hasta if hasta else None, motivo))
 
             #cursos
-            anios_cursos = request.form.getlist('anio[]')
+            anios_cursos = request.form.getlist('anio_curso[]')
             capacitaciones = request.form.getlist('cap[]')
             instituciones_curso = request.form.getlist('inst[]')
             nombres_cap = request.form.getlist('n_cap[]')
@@ -544,14 +733,14 @@ def guardar_formulario():
                 escritura = 1 if request.form.get(f'escritura_{i}') else 0
                 conversacion = 1 if request.form.get(f'conversacion_{i}') else 0
 
-                if not (idioma or folio or lectura or escritura or conversacion):
+                if not (idioma or folio_idioma or lectura or escritura or conversacion):
                     continue
 
                 cursor.execute(
                         """
                         INSERT INTO idiomas (persona_id, idioma, lectura, escritura, conversacion, folio)
                         VALUES (?, ?, ?, ?, ?, ?)
-                        """, (persona_id, idioma, lectura, escritura, conversacion, folio if folio else None))
+                        """, (persona_id, idioma, lectura, escritura, conversacion, folio_idioma if folio_idioma else None))
             
             #docencia
             anios_doc = request.form.getlist('anio_docencia[]')
@@ -657,11 +846,8 @@ def guardar_formulario():
 
             conn.commit()
             
-            with get_db_connection() as conn:
-                persona = conn.execute("SELECT * FROM datos WHERE id = ?", (persona_id,)).fetchone()
-                experiencia = conn.execute("SELECT * FROM experiencia WHERE persona_id = ?", (persona_id,)).fetchall()
-
-            pdf_file = genera_pdf_formulario(persona, experiencia)
+            persona, experiencia, formacion, cursos, paquetes, idiomas, docencia, referencias, registro, pretension, incompatibilidades, declaracion = obtener_datos_completos(persona_id)
+            pdf_file = genera_pdf_formulario(persona, experiencia, formacion, cursos, paquetes, idiomas, docencia, referencias, registro, pretension, incompatibilidades, declaracion)
             nombre_pdf = f"FORMULARIO_HV_{persona_id}.pdf"
 
             flash('Formulario guardado exitosamente', 'success')
@@ -681,119 +867,35 @@ def guardar_formulario():
         flash(f'Error al guardar: {str(e)}', 'error')
         return redirect(url_for('index'))
 
-def genera_pdf_formulario(persona, experiencia):
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_page()
+@app.route("/reimprimir", methods=["POST"])
+def reimprimir():
+    correo = (request.form.get("correo") or "").strip()
 
-    pdf.set_font("Helvetica", "B", 14)
-    pdf.cell(0, 10, "FORMULARIO - HOJA DE VIDA", new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf.ln(3)
-    #datos 
-    datos_personales_layout(pdf, persona)
-
-    pdf_output = BytesIO()
-    pdf_bytes = pdf.output(dest="S")
-    pdf_output.write(pdf_bytes)
-    pdf_output.seek(0)
-    return pdf_output
-
-def datos_personales_layout(pdf, persona):
-    pdf.set_font("Helvetica", "", 10)
-
-    left = 12
-    right = 12
-    top = pdf.get_y() + 5
-
-    page_w = pdf.w - left - right
-    box_h = 15
-    gap_y = 14
-    label_gap = 4
-
-    container_x = left
-    container_y = top
-    container_w = page_w
-    container_h = 95
-
-    pdf.rect(container_x, container_y, container_w, container_h)
-
-    header_h = 10
-    pdf.set_fill_color(0, 51, 102)
-    pdf.set_text_color(255, 255, 255)
-    pdf.set_font("Helvetica", "B", 12)
-    pdf.set_xy(container_x, container_y)
-    pdf.cell(container_w, header_h, "I. DATOS PERSONALES", border=0, fill=True, new_x="LMARGIN", new_y="TOP")
+    if not correo:
+        flash("Ingresa tu correo electrónico", "danger")
+        return redirect(url_for("index"))
     
-    pdf.set_text_color(0, 0, 0)
-    pdf.set_font("Helvetica", "", 9)
+    conn = get_db_connection()
+    persona_row = conn.execute("SELECT * FROM datos WHERE correo = ?", (correo,)).fetchone()
 
-    inner_x = container_x + 8
-    inner_y = container_y + header_h + 6
-    inner_w = container_w - 16
+    if not persona_row:
+        conn.close()
+        flash("No existe ningun formulario con ese correo.", "danger")
+        return redirect(url_for("index"))
+    
+    persona_id = persona_row["id"]
+    conn.close()
 
-    col_gap = 6
-    col_w = (inner_w - (col_gap * 2)) / 3
+    persona, experiencia, formacion, cursos, paquetes, idiomas, docencia, referencias, registro, pretension, incompatibilidades, declaracion = obtener_datos_completos(persona_id)
+    pdf_file = genera_pdf_formulario(persona, experiencia, formacion, cursos, paquetes, idiomas, docencia, referencias, registro, pretension, incompatibilidades, declaracion)
+    nombre_pdf = f"FORMULARIO_HV_{persona_id}.pdf"
 
-    def draw_field(label, value, x, y, w):
-        #label
-        pdf.set_xy(x, y)
-        pdf.cell(w, 4, label)
-        #box
-        box_y = y + label_gap
-        pdf.rect(x, box_y, w, box_h)
-
-        pdf.set_xy(x + 2, box_y + 2)
-        txt = "" if value is None else str(value)
-        pdf.cell(w - 4, 4, txt)
-
-    x1 = inner_x
-    x2 = inner_x + col_w + col_gap
-    x3 = inner_x + (col_w + col_gap) * 2
-
-    y = inner_y
-
-    #f1
-    draw_field("Nombres:", persona["nombres"], x1, y, col_w)
-    draw_field("Apellido Paterno:", persona["ap_pat"], x2, y, col_w)
-    draw_field("Apellido Materno:", persona["ap_mat"], x3, y, col_w)
-
-    #F2
-    y += gap_y
-    draw_field("Cédula de Identidad:", persona["ci"], x1, y, col_w)
-    draw_field("Expedido:", persona["exp"], x2, y, col_w)
-    draw_field("Estado Civil:", persona["est_civil"], x3, y, col_w)
-
-    #F3
-    y += gap_y
-    draw_field("Fecha de nacimiento:", persona["fecha_nac"], x1, y, col_w)
-    draw_field("Lugar:", persona["lugar"], x2, y, col_w)
-    draw_field("Nacionalidad:", persona["nacio"], x3, y, col_w)
-
-    #F4
-    y += gap_y
-    dir_w = col_w * 1.5 + col_gap / 2
-    rest_w = inner_w - dir_w - col_gap
-    ciudad_w = rest_w / 2
-    grupo_w = rest_w / 2
-
-    draw_field("Dirección:", persona["direccion"], x1, y, dir_w)
-    x_ciudad = x1 + dir_w + col_gap
-    draw_field("Ciudad:", persona["ciudad"], x_ciudad, y, ciudad_w)
-    x_grupo = x_ciudad + ciudad_w + col_gap
-    draw_field("Grupo Sanguíneo:", persona["gr_san"], x_grupo, y, grupo_w)
-
-    #F5
-    y += gap_y
-    draw_field("Teléfono Celular:", persona["tcel"], x1, y, col_w)
-    draw_field("Teléfono Fijo:", persona["tfijo"], x2, y, col_w)
-    draw_field("Correo Electrónico:", persona["correo"], x3, y, col_w)
-
-    #F6
-    y += gap_y
-    draw_field("N° de Libreta de Servicio Militar", persona["n_libser"], x1, y, inner_w)
-
-
-    pdf.set_y(container_y + container_h + 8)
+    return send_file(
+        pdf_file,
+        as_attachment=True,
+        download_name=nombre_pdf,
+        mimetype="application/pdf"
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

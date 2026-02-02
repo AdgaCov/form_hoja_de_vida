@@ -14,6 +14,7 @@
         <div>
             <a href="{{ url_for ('login') }}" style="text-decoration: none; color: #003366; font-weight: bold; padding: 8px 15px; border: 2px solid #003366; border-radius: 5px;">Iniciar Sesión</a>
         </div>
+        <button type="button" id="btnReimprimir">Reimprimir Formulario</button>
     </nav>
     <div style="display: flex; align-items: center; justify-content: center;">
         <label style="font-size: 20px;"><strong>FORMULARIO HOJA DE VIDA</strong></label>
@@ -169,7 +170,7 @@
                                 <textarea name="grado[]" rows="1" class="auto-resize"></textarea>
                             </td>
                             <td>
-                                <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
+                                <input type="number" name="anio_formacion[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
                             </td>
                             <td>
                                 <input type="text"
@@ -251,7 +252,7 @@
                     <tbody id="tbody-cursos">
                         <tr class="fila-cursos">
                             <td>
-                                <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;">
+                                <input type="number" name="anio_curso[]" style="border: none; width: 100%; padding: 4px;">
                             </td>
                             <td>
                                 <textarea type="text" name="cap[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
@@ -292,10 +293,10 @@
                                 <input type="radio" name="nivel_0" value="regular" style="border: none; padding: 4px; width: 100%; height: 20px;">
                             </td>
                             <td>
-                                <input type="radio" name="nivel_1" value="bueno" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                                <input type="radio" name="nivel_0" value="bueno" style="border: none; width: 100%; padding: 4px; height: 20px;">
                             </td>
                             <td>
-                                <input type="radio" name="nivel_2" value="muy_bueno" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                                <input type="radio" name="nivel_0" value="muy_bueno" style="border: none; width: 100%; padding: 4px; height: 20px;">
                             </td>
                             <td>
                                 <input type="text" name="folio_paquete[]" style="border: none; width: 100%; padding: 4px;">
@@ -325,13 +326,13 @@
                                 <textarea name="idioma[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                             </td>
                             <td>
-                                <input name="lectura" type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                                <input name="lectura_0" type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
                             </td>
                             <td>
-                                <input name="escritura" type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                                <input name="escritura_0" type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
                             </td>
                             <td>
-                                <input name="conversacion" type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                                <input name="conversacion_0" type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
                             </td>
                             <td>
                                 <textarea name="folio_idioma[]" rows="1" class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
@@ -506,6 +507,20 @@
         </div>
     </form>
 
+    <div class="modal" id="modalReimprimir">
+        <div class="modal-content">
+            <h3>Reimprimir Formulario</h3>
+            <p>Ingresa el correo del formulario:</p>
+            <form method="POST" action="{{ url_for('reimprimir') }}">
+                <input type="email" name="correo" placeholder="adri@gmail.com" required>
+                <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:15px;">
+                    <button type="button" id="btnCerrarModal">Cancelar</button>
+                    <button type="submit">Aceptar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
     <style>
         body{
@@ -580,6 +595,32 @@
             font-family: inherit;
             font-size: inherit;
         }
+        .modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+        background: white;
+        width: 90%;
+        max-width: 400px;
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .modal-content input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+    }
+
     </style>
 
     <script>
@@ -896,6 +937,24 @@
                 addRowEvents(firstRowRef, tbodyRef, createNewRowRef);
             }
 
+        });
+
+        const btnReimprimir = document.getElementById("btnReimprimir");
+        const modal = document.getElementById("modalReimprimir");
+        const btnCerrar = document.getElementById("btnCerrarModal");
+
+        btnReimprimir.addEventListener("click", () => {
+            modal.style.display = "block";
+        });
+
+        btnCerrar.addEventListener("click", () => {
+            modal.style.display = "none";
+        });
+
+        window.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                modal.style.display = "none";
+            }
         });
     </script>
 </body>
