@@ -229,6 +229,20 @@
                 margin: 10px 0;
                 page-break-inside: avoid;
             }
+            .fila-desmarcada {
+                background-color: #ffe6e6 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .fila-desmarcada::after {
+                display: block !important;
+                background-color: #ff0000 !important;
+            }
+
+            .fila-desmarcada td {
+                border-color: #990000 !important;
+            }
         }
         
         .info-text {
@@ -236,6 +250,16 @@
             color: #666;
             text-align: center;
             margin-top: 10px;
+        }
+
+        .fila-exp.desmarcada {
+        background-color: #ffe6e6;
+        color: #990000;
+        text-decoration: line-through;
+        }
+
+        .fila-exp.desmarcada td {
+        border-color: #990000;
         }
     </style>
 </head>
@@ -349,7 +373,7 @@
                 </thead>
                 <tbody>
                     {% for exp in experiencia %}
-                    <tr class="fila-exp">
+                    <tr class="fila-exp" data-id="{{ exp.id }}">
                         <td class="checkbox-cell no-print">
                             <input type="checkbox" class="chk-exp" checked>
                         </td>
@@ -399,8 +423,8 @@
     </div>
 
     <script>
-        console.log('🚀 Script cargado correctamente');
-        const personaId = {{ persona.id }};
+        console.log('Script cargado correctamente');
+        const personaId = "{{ persona.id }}";
         console.log('Persona ID:', personaId);
 
         // Función para calcular años y meses
@@ -412,6 +436,14 @@
             filas.forEach(fila => {
                 const chk = fila.querySelector(".chk-exp");
                 if (!chk || !chk.checked) return;
+
+                if (chk.checked) {
+                    fila.classList.remove('fila-desmarcada');
+                } else {
+                    fila.classList.add('fila-desmarcada');
+                }
+
+                if (!chk.checked) return;
 
                 const desdeCell = fila.querySelector(".exp-desde");
                 const hastaCell = fila.querySelector(".exp-hasta");
@@ -444,7 +476,19 @@
 
             document.getElementById("total-anios").value = anios;
             document.getElementById("total-meses").value = meses;
-            console.log('✅ Cálculo completado:', anios, 'años,', meses, 'meses');
+            console.log('Cálculo completado:', anios, 'años,', meses, 'meses');
+        }
+
+        function obtenerIdsMarcados() {
+            const ids = [];
+            document.querySelectorAll(".fila-exp").forEach(fila => {
+                const chk = fila.querySelector(".chk-exp");
+                if (chk && chk.checked) {
+                    const id = fila.dataset.id;
+                    if (id) ids.push(id);
+                }
+            });
+            return ids;
         }
 
         // Eventos
@@ -456,7 +500,7 @@
             // Recalcular
             const btnRecalcular = document.getElementById("btn-recalcular");
             if (btnRecalcular) {
-                console.log('✅ Botón recalcular encontrado');
+                console.log('Botón recalcular encontrado');
                 btnRecalcular.addEventListener("click", function() {
                     console.log('🔄 Recalculando...');
                     calcularAniosSeleccionados();
@@ -481,15 +525,17 @@
             // Quitar selección
             const btnQuitarSeleccion = document.getElementById("btn-quitar-seleccion");
             if (btnQuitarSeleccion) {
-                console.log('✅ Botón quitar selección encontrado');
+                console.log('Botón quitar selección encontrado');
                 btnQuitarSeleccion.addEventListener("click", function() {
-                    console.log('❎ Quitando selección...');
+                    console.log('Quitando selección...');
                     document.querySelectorAll(".chk-exp").forEach(c => c.checked = false);
                     calcularAniosSeleccionados();
                 });
             } else {
                 console.error('❌ Botón quitar selección NO encontrado');
             }
+
+            
 
             // Guardar resumen
             const btnGuardarResumen = document.getElementById("btn-guardar-resumen");
@@ -550,7 +596,9 @@
                 console.log('✅ Botón descargar PDF encontrado');
                 btnDescargarPdf.addEventListener("click", function() {
                     console.log('📄 Descargando PDF...');
-                    window.location.href = '/imprimir_detalles/' + personaId;
+                    const idsMarcados = obtenerIdsMarcados();
+                    const url = `/imprimir_detalles/${personaId}?ids_marcados=${encodeURIComponent(JSON.stringify(idsMarcados))}`;
+                    window.open(url, '_blank');
                 });
             } else {
                 console.error('❌ Botón descargar PDF NO encontrado');

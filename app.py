@@ -453,7 +453,7 @@ def imprimir_detalles(id):
     
     persona_row = conn.execute("SELECT * FROM datos WHERE id = ?", (id,)).fetchone()
     persona = dict(persona_row) if persona_row else None
-    
+
     if not persona:
         conn.close()
         flash("Persona no encontrada", "error")

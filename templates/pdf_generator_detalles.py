@@ -1,10 +1,13 @@
 from fpdf import FPDF
 from io import BytesIO
+import json
 
 # Colores
 BLUE = (0, 51, 102)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+LIGHT_RED = (255, 230, 230)
+RED = (255, 0, 0) 
 
 def safe_text(v):
     """Convierte cualquier valor a string, evitando None"""
@@ -49,9 +52,21 @@ class DetallesPDF(FPDF):
         self.line(x_start, y_start + height, x_start + value_w, y_start + height)
 
 
-def genera_pdf_detalles(persona, experiencia=None, resumen=None):
+def genera_pdf_detalles(persona, experiencia=None, resumen=None, ids_marcados=None):
     """Genera PDF simplificado con datos personales y experiencia"""
     
+    # Procesar ids_marcados
+    if ids_marcados:
+        if isinstance(ids_marcados, str):
+            try:
+                ids_marcados = json.loads(ids_marcados)
+            except:
+                ids_marcados = []
+        # Asegurar que todos sean enteros
+        ids_marcados = [int(id) for id in ids_marcados if id is not None]
+    else:
+        ids_marcados = []
+
     pdf = DetallesPDF(format='A4')
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
@@ -114,17 +129,45 @@ def genera_pdf_detalles(persona, experiencia=None, resumen=None):
         # Filas
         pdf.set_font('Helvetica', '', 7)
         for exp in experiencia:
+            exp_id = exp.get('id')
             nombre = safe_text(exp.get('nombre', ''))[:45]
             puesto = safe_text(exp.get('puesto', ''))[:30]
             desde = safe_text(exp.get('desde', ''))
             hasta = safe_text(exp.get('hasta', ''))
             periodo = f"{desde} - {hasta}" if desde or hasta else ""
             motivo = safe_text(exp.get('motivo', ''))[:40]
+
+            # Verificar si está marcada
+            esta_marcada = True
+            if ids_marcados is not None and len(ids_marcados) > 0:
+                esta_marcada = exp_id in ids_marcados
+            
+            # Guardar posición Y antes de dibujar la fila
+            y_inicio_fila = pdf.get_y()
+            
+            # Dibujar celdas (sin color de fondo especial)
+            pdf.set_fill_color(255, 255, 255)
+            pdf.set_text_color(0, 0, 0)
             
             pdf.cell(55, 10, nombre, border=1)
             pdf.cell(42, 10, puesto, border=1)
             pdf.cell(35, 10, periodo, border=1, align='C')
             pdf.cell(53, 10, motivo, border=1, ln=True)
+            
+            # Si NO está marcada, dibujar línea roja
+            if not esta_marcada:
+                # Calcular posición Y para la línea (mitad de la celda)
+                linea_y = y_inicio_fila + 5  # 5 es la mitad de 10 (altura de celda)
+                
+                # Dibujar línea roja a través de toda la fila
+                pdf.set_draw_color(*RED)
+                pdf.set_line_width(0.8)
+                pdf.line(10, linea_y, 200, linea_y)  # De margen izquierdo a derecho
+                
+                # Restaurar color de dibujo
+                pdf.set_draw_color(0, 0, 0)
+                pdf.set_line_width(0.2)
+
     else:
         pdf.set_font('Helvetica', 'I', 9)
         pdf.cell(0, 8, 'Sin registros de experiencia laboral', ln=True)

@@ -14,7 +14,7 @@
         <div>
             <a href="{{ url_for ('login') }}" style="text-decoration: none; color: #003366; font-weight: bold; padding: 8px 15px; border: 2px solid #003366; border-radius: 5px;">Iniciar Sesión</a>
         </div>
-        <button type="button" id="btnReimprimir">Reimprimir Formulario</button>
+        <button type="button" id="btnReimprimir" style="text-decoration: none; color: #003366; font-weight: bold; padding: 8px 15px; border: 2px solid #003366; border-radius: 5px;">Reimprimir Formulario</button>
     </nav>
     <div style="display: flex; align-items: center; justify-content: center;">
         <label style="font-size: 20px;"><strong>FORMULARIO HOJA DE VIDA</strong></label>
@@ -218,21 +218,6 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <button type="button" id="btn-calcular">
-                        Calcular
-                    </button>
-                </div>
-                <div class="form-group">
-                    <label>Años:</label>
-                    <input type="number" id="total-anios" disabled>
-                </div>
-                <div class="form-group">
-                    <label for="">Meses</label>
-                    <input type="number" id="total-meses" disabled>
-                </div>
             </div>
         </div>
         
@@ -503,7 +488,7 @@
             </div>
         </div>
         <div>
-            <button type="submit" >GUARDAR</button>
+            <button type="submit" style="text-decoration: none; color: #003366; font-weight: bold; padding: 8px 15px; border: 2px solid #003366; border-radius: 5px; display: flex; text-align: center; justify-content: center;">GUARDAR</button>
         </div>
     </form>
 
@@ -514,8 +499,8 @@
             <form method="POST" action="{{ url_for('reimprimir') }}">
                 <input type="email" name="correo" placeholder="adri@gmail.com" required>
                 <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:15px;">
-                    <button type="button" id="btnCerrarModal">Cancelar</button>
-                    <button type="submit">Aceptar</button>
+                    <button type="button" id="btnCerrarModal" style="text-decoration: none; color: #003366; font-weight: bold; padding: 8px 15px; border: 2px solid #003366; border-radius: 5px;">Cancelar</button>
+                    <button type="submit" style="text-decoration: none; color: #003366; font-weight: bold; padding: 8px 15px; border: 2px solid #003366; border-radius: 5px;">Aceptar</button>
                 </div>
             </form>
         </div>
