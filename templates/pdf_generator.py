@@ -59,6 +59,68 @@ class FormularioPDF(FPDF):
             return True
         return False
 
+def _calc_lines(pdf, w, txt):
+    """Calcula cuántas líneas ocupará un texto en un ancho w usando multi_cell"""
+    if txt is None:
+        txt = ""
+    txt = str(txt)
+    if txt == "":
+        return 1
+    # cálculo aproximado basado en ancho de texto
+    words = txt.split(" ")
+    lines = 1
+    current = ""
+    for word in words:
+        test = (current + " " + word).strip()
+        if pdf.get_string_width(test) <= w - 2:
+            current = test
+        else:
+            lines += 1
+            current = word
+    return lines
+
+def row_multicell(pdf, data, widths, line_height=5, aligns=None):
+    """
+    Dibuja una fila tipo tabla usando multi_cell sin que se salga del borde.
+    data: lista de strings
+    widths: lista de anchos
+    aligns: lista de alineaciones ('L','C','R')
+    """
+    if aligns is None:
+        aligns = ["L"] * len(data)
+
+    # calcular altura máxima según el contenido
+    max_lines = 1
+    for txt, w in zip(data, widths):
+        lines = _calc_lines(pdf, w, txt)
+        if lines > max_lines:
+            max_lines = lines
+
+    row_h = max_lines * line_height
+
+    # salto de página si no entra
+    if pdf.get_y() + row_h > pdf.page_break_trigger:
+        pdf.add_page()
+
+    x_start = pdf.get_x()
+    y_start = pdf.get_y()
+
+    for i, (txt, w) in enumerate(zip(data, widths)):
+        x = pdf.get_x()
+        y = pdf.get_y()
+
+        # borde
+        pdf.rect(x, y, w, row_h)
+
+        # texto
+        pdf.multi_cell(w, line_height, safe_text(txt), border=0, align=aligns[i])
+
+        # volver arriba y moverse a la derecha
+        pdf.set_xy(x + w, y)
+
+    # bajar a la siguiente fila
+    pdf.set_xy(x_start, y_start + row_h)
+
 
 def genera_pdf_formulario(persona, experiencia=None, formacion=None, cursos=None,
                          paquetes=None, idiomas=None, docencia=None, referencias=None,
@@ -113,37 +175,44 @@ def genera_pdf_formulario(persona, experiencia=None, formacion=None, cursos=None
     pdf.add_labeled_field('N° Libreta Servicio Militar:', persona.get('n_libser', ''), 45, 30)
     pdf.ln(10)
     
-    # ==================== II. FORMACIÓN ACADÉMICA ====================
-    pdf.check_page_break(40)  # Verifica si hay espacio para la tabla
+        # ==================== II. FORMACIÓN ACADÉMICA ====================
+    pdf.check_page_break(40)
     pdf.section_title('II. FORMACIÓN ACADÉMICA')
-    
+
     if formacion and len(formacion) > 0:
-        # Encabezados de tabla
+        widths = [45, 45, 50, 20, 25]
+
+        # Encabezados
         pdf.set_font('Helvetica', 'B', 7)
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(45, 8, 'Detalle', border=1, fill=True, align='C')
-        pdf.cell(45, 8, 'Institución', border=1, fill=True, align='C')
-        pdf.cell(50, 8, 'Grado/Título', border=1, fill=True, align='C')
-        pdf.cell(20, 8, 'Año', border=1, fill=True, align='C')
-        pdf.cell(25, 8, 'N° Folio', border=1, fill=True, align='C', ln=True)
-        
-        # Filas de datos
+        headers = ['Detalle', 'Institución', 'Grado/Título', 'Año', 'N° Folio']
+
+        for h, w in zip(headers, widths):
+            pdf.cell(w, 8, h, border=1, fill=True, align='C')
+        pdf.ln()
+
+        # Filas
         pdf.set_font('Helvetica', '', 7)
         for f in formacion:
-            # Verificar espacio para nueva fila
-            pdf.check_page_break(10)
-            
-            pdf.cell(45, 10, safe_text(f.get('detalle', ''))[:35], border=1)
-            pdf.cell(45, 10, safe_text(f.get('institucion', ''))[:35], border=1)
-            pdf.cell(50, 10, safe_text(f.get('grado', ''))[:40], border=1)
-            pdf.cell(20, 10, safe_text(f.get('anio', '')), border=1, align='C')
-            pdf.cell(25, 10, safe_text(f.get('n_folio', '')), border=1, align='C', ln=True)
+            row_multicell(
+                pdf,
+                [
+                    f.get('detalle', ''),
+                    f.get('institucion', ''),
+                    f.get('grado', ''),
+                    f.get('anio', ''),        # ✅ AÑO siempre visible
+                    f.get('n_folio', '')
+                ],
+                widths,
+                line_height=4,
+                aligns=['L', 'L', 'L', 'C', 'C']
+            )
     else:
         pdf.set_font('Helvetica', 'I', 9)
         pdf.cell(0, 8, 'Sin registros de formación académica', ln=True)
-    
+
     pdf.ln(8)
-    
+
     # ==================== III. EXPERIENCIA LABORAL ====================
     pdf.check_page_break(40)
     pdf.section_title('III. EXPERIENCIA LABORAL')
@@ -183,41 +252,54 @@ def genera_pdf_formulario(persona, experiencia=None, formacion=None, cursos=None
     if cursos and len(cursos) > 0:
         pdf.check_page_break(40)
         pdf.section_title('IV. CURSOS Y CAPACITACIONES')
-        
+
+        widths = [15, 38, 50, 57, 25]
+
         pdf.set_font('Helvetica', 'B', 7)
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(15, 7, 'Año', border=1, fill=True, align='C')
-        pdf.cell(38, 7, 'Área', border=1, fill=True, align='C')
-        pdf.cell(50, 7, 'Institución', border=1, fill=True, align='C')
-        pdf.cell(57, 7, 'Nombre Capacitación', border=1, fill=True, align='C')
-        pdf.cell(25, 7, 'Horas', border=1, fill=True, align='C', ln=True)
-        
+        headers = ['Año', 'Área', 'Institución', 'Nombre Capacitación', 'Horas']
+
+        for h, w in zip(headers, widths):
+            pdf.cell(w, 7, h, border=1, fill=True, align='C')
+        pdf.ln()
+
         pdf.set_font('Helvetica', '', 7)
         for c in cursos:
-            pdf.check_page_break(10)
-            pdf.cell(15, 8, safe_text(c.get('anio', '')), border=1, align='C')
-            pdf.cell(38, 8, safe_text(c.get('area_capacitacion', ''))[:28], border=1)
-            pdf.cell(50, 8, safe_text(c.get('institucion', ''))[:38], border=1)
-            pdf.cell(57, 8, safe_text(c.get('nombre_capacitacion', ''))[:45], border=1)
-            pdf.cell(25, 8, safe_text(c.get('duracion_horas', '')), border=1, align='C', ln=True)
-        
+            row_multicell(
+                pdf,
+                [
+                    c.get('anio', ''),                 # ✅ AÑO SIEMPRE
+                    c.get('area_capacitacion', ''),
+                    c.get('institucion', ''),
+                    c.get('nombre_capacitacion', ''),
+                    c.get('duracion_horas', '')
+                ],
+                widths,
+                line_height=4,
+                aligns=['C', 'L', 'L', 'L', 'C']
+            )
+
         pdf.ln(8)
     
     # ==================== V. PAQUETES INFORMÁTICOS ====================
     if paquetes and len(paquetes) > 0:
         pdf.check_page_break(40)
         pdf.section_title('V. CONOCIMIENTO DE PAQUETES INFORMÁTICOS')
-        
+
+        widths = [65, 45, 75]
+
+        # Encabezado
         pdf.set_font('Helvetica', 'B', 8)
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(65, 7, 'Paquete', border=1, fill=True, align='C')
-        pdf.cell(45, 7, 'Nivel', border=1, fill=True, align='C')
-        pdf.cell(75, 7, 'N° Folio', border=1, fill=True, align='C', ln=True)
-        
+        headers = ['Paquete', 'Nivel', 'N° Folio']
+
+        for h, w in zip(headers, widths):
+            pdf.cell(w, 7, h, border=1, fill=True, align='C')
+        pdf.ln()
+
+        # Filas
         pdf.set_font('Helvetica', '', 8)
         for p in paquetes:
-            pdf.check_page_break(10)
-            
             nivel = safe_text(p.get('nivel', ''))
             if nivel == 'muy_bueno':
                 nivel = 'Muy Bueno'
@@ -225,82 +307,123 @@ def genera_pdf_formulario(persona, experiencia=None, formacion=None, cursos=None
                 nivel = 'Bueno'
             elif nivel == 'regular':
                 nivel = 'Regular'
-            
-            pdf.cell(65, 8, safe_text(p.get('paquete', '')), border=1)
-            pdf.cell(45, 8, nivel, border=1, align='C')
-            pdf.cell(75, 8, safe_text(p.get('folio', '')), border=1, ln=True)
-        
+
+            row_multicell(
+                pdf,
+                [
+                    p.get('paquete', ''),
+                    nivel,
+                    p.get('folio', '')
+                ],
+                widths,
+                line_height=4,
+                aligns=['L', 'C', 'C']
+            )
+
         pdf.ln(8)
-    
+
     # ==================== VI. IDIOMAS ====================
     if idiomas and len(idiomas) > 0:
         pdf.check_page_break(40)
         pdf.section_title('VI. IDIOMAS')
-        
+
+        widths = [50, 30, 30, 30, 35]
+
+        # Encabezado
         pdf.set_font('Helvetica', 'B', 8)
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(50, 7, 'Idioma', border=1, fill=True, align='C')
-        pdf.cell(30, 7, 'Lectura', border=1, fill=True, align='C')
-        pdf.cell(30, 7, 'Escritura', border=1, fill=True, align='C')
-        pdf.cell(30, 7, 'Conversación', border=1, fill=True, align='C')
-        pdf.cell(35, 7, 'N° Folio', border=1, fill=True, align='C', ln=True)
-        
+        headers = ['Idioma', 'Lectura', 'Escritura', 'Conversación', 'N° Folio']
+
+        for h, w in zip(headers, widths):
+            pdf.cell(w, 7, h, border=1, fill=True, align='C')
+        pdf.ln()
+
+        # Filas
         pdf.set_font('Helvetica', '', 8)
         for i in idiomas:
-            pdf.check_page_break(10)
-            pdf.cell(50, 8, safe_text(i.get('idioma', '')), border=1)
-            pdf.cell(30, 8, 'Sí' if i.get('lectura') else 'No', border=1, align='C')
-            pdf.cell(30, 8, 'Sí' if i.get('escritura') else 'No', border=1, align='C')
-            pdf.cell(30, 8, 'Sí' if i.get('conversacion') else 'No', border=1, align='C')
-            pdf.cell(35, 8, safe_text(i.get('folio', '')), border=1, ln=True)
-        
+            row_multicell(
+                pdf,
+                [
+                    i.get('idioma', ''),
+                    'Sí' if i.get('lectura') else 'No',
+                    'Sí' if i.get('escritura') else 'No',
+                    'Sí' if i.get('conversacion') else 'No',
+                    i.get('folio', '')
+                ],
+                widths,
+                line_height=4,
+                aligns=['L', 'C', 'C', 'C', 'C']
+            )
+
         pdf.ln(8)
     
     # ==================== VII. DOCENCIA ====================
     if docencia and len(docencia) > 0:
         pdf.check_page_break(40)
         pdf.section_title('VII. DOCENCIA')
-        
-        pdf.set_font('Helvetica', 'B', 8)
+
+        widths = [15, 55, 65, 25, 25]
+
+        pdf.set_font('Helvetica', 'B', 7)
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(15, 7, 'Año', border=1, fill=True, align='C')
-        pdf.cell(55, 7, 'Institución', border=1, fill=True, align='C')
-        pdf.cell(65, 7, 'Nombre del Curso', border=1, fill=True, align='C')
-        pdf.cell(25, 7, 'Horas', border=1, fill=True, align='C')
-        pdf.cell(25, 7, 'N° Folio', border=1, fill=True, align='C', ln=True)
-        
+        headers = ['Año', 'Institución', 'Nombre del Curso', 'Horas', 'N° Folio']
+
+        for h, w in zip(headers, widths):
+            pdf.cell(w, 7, h, border=1, fill=True, align='C')
+        pdf.ln()
+
         pdf.set_font('Helvetica', '', 7)
         for d in docencia:
-            pdf.check_page_break(10)
-            pdf.cell(15, 8, safe_text(d.get('anio', '')), border=1, align='C')
-            pdf.cell(55, 8, safe_text(d.get('institucion', ''))[:42], border=1)
-            pdf.cell(65, 8, safe_text(d.get('nombre_curso', ''))[:50], border=1)
-            pdf.cell(25, 8, safe_text(d.get('duracion_horas', '')), border=1, align='C')
-            pdf.cell(25, 8, safe_text(d.get('folio', '')), border=1, ln=True)
-        
+            row_multicell(
+                pdf,
+                [
+                    d.get('anio', ''),                  # ✅ AÑO SIEMPRE
+                    d.get('institucion', ''),
+                    d.get('nombre_curso', ''),
+                    d.get('duracion_horas', ''),
+                    d.get('folio', '')
+                ],
+                widths,
+                line_height=4,
+                aligns=['C', 'L', 'L', 'C', 'C']
+            )
+
         pdf.ln(8)
-    
+
     # ==================== VIII. REFERENCIAS ====================
     if referencias and len(referencias) > 0:
         pdf.check_page_break(40)
         pdf.section_title('VIII. REFERENCIAS PERSONALES')
-        
+
+        widths = [55, 50, 45, 35]
+
+        # Encabezado
         pdf.set_font('Helvetica', 'B', 8)
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(55, 7, 'Nombre y Apellido', border=1, fill=True, align='C')
-        pdf.cell(50, 7, 'Institución', border=1, fill=True, align='C')
-        pdf.cell(45, 7, 'Puesto', border=1, fill=True, align='C')
-        pdf.cell(35, 7, 'Teléfono', border=1, fill=True, align='C', ln=True)
-        
+        headers = ['Nombre y Apellido', 'Institución', 'Puesto', 'Teléfono']
+
+        for h, w in zip(headers, widths):
+            pdf.cell(w, 7, h, border=1, fill=True, align='C')
+        pdf.ln()
+
+        # Filas
         pdf.set_font('Helvetica', '', 8)
         for r in referencias:
-            pdf.check_page_break(10)
-            pdf.cell(55, 8, safe_text(r.get('nombre_apellido', ''))[:42], border=1)
-            pdf.cell(50, 8, safe_text(r.get('institucion', ''))[:38], border=1)
-            pdf.cell(45, 8, safe_text(r.get('puesto', ''))[:32], border=1)
-            pdf.cell(35, 8, safe_text(r.get('telefono', '')), border=1, ln=True)
-        
+            row_multicell(
+                pdf,
+                [
+                    r.get('nombre_apellido', ''),
+                    r.get('institucion', ''),
+                    r.get('puesto', ''),
+                    r.get('telefono', '')
+                ],
+                widths,
+                line_height=4,
+                aligns=['L', 'L', 'L', 'C']
+            )
+
         pdf.ln(8)
+
     
     # ==================== IX. REGISTRO PROFESIONAL ====================
     if registro:

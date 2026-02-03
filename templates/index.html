@@ -270,7 +270,7 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-paquetes">
-                        <tr class="fila-paquetes">
+                        <tr class="fila-paquetes" data-index="0">
                             <td>
                                 <textarea name="paquete[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                             </td>
@@ -740,22 +740,24 @@
             function createNewRowPaquetes(){
                 const newRow = document.createElement('tr');
                 newRow.className = 'fila-paquetes';
+                newRow.dataset.index = index;
+
                 newRow.innerHTML = `
                         <td>
-                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <input type="radio" name="nivel" style="border: none; width: 100%; padding: 4px; height: 20px;">
-                        </td>
-                        <td>
-                            <input type="radio" name="nivel" style="border: none; width: 100%; padding: 4px; height: 20px;">
-                        </td>
-                        <td>
-                            <input type="radio" name="nivel" style="border: none; width: 100%; padding: 4px; height: 20px;">
-                        </td>
-                        <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
-                        </td>
+                                <textarea name="paquete[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <input type="radio" name="nivel_${index}" value="regular" style="border: none; padding: 4px; width: 100%; height: 20px;">
+                            </td>
+                            <td>
+                                <input type="radio" name="nivel_${index}" value="bueno" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                            </td>
+                            <td>
+                                <input type="radio" name="nivel_${index}" value="muy_bueno" style="border: none; width: 100%; padding: 4px; height: 20px;">
+                            </td>
+                            <td>
+                                <input type="text" name="folio_paquete[]" style="border: none; width: 100%; padding: 4px;">
+                            </td>
                 `;
                 return newRow;
             }
@@ -763,51 +765,59 @@
             const tbodyIdiomas = document.getElementById('tbody-idiomas');
 
             function createNewRowIdiomas(){
-                const newRow = document.createElement('tr');
-                newRow.className = 'fila-idiomas';
-                newRow.innerHTML = `
-                        <td>
-                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
-                        </td>
-                        <td>
-                            <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
-                        </td>
-                        <td>
-                            <input type="checkbox" style="border: none; width: 100%; padding: 4px; height: 20px;">
-                        </td>
-                        <td>
-                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                `;
-                return newRow;
+            const index = tbodyIdiomas.querySelectorAll('tr.fila-idiomas').length;
+
+            const newRow = document.createElement('tr');
+            newRow.className = 'fila-idiomas';
+            newRow.dataset.index = index;
+
+            newRow.innerHTML = `
+                <td>
+                <textarea name="idioma[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                </td>
+                <td style="text-align:center;">
+                <input name="lectura_${index}" type="checkbox" style="height: 20px;">
+                </td>
+                <td style="text-align:center;">
+                <input name="escritura_${index}" type="checkbox" style="height: 20px;">
+                </td>
+                <td style="text-align:center;">
+                <input name="conversacion_${index}" type="checkbox" style="height: 20px;">
+                </td>
+                <td>
+                <textarea name="folio_idioma[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                </td>
+            `;
+
+            return newRow;
             }
+
 
             const tbodyDocencia = document.getElementById('tbody-docencia');
 
             function createNewRowDocencia(){
-                const newRow = document.createElement('tr');
-                newRow.className = 'fila-docencia';
-                newRow.innerHTML = `
-                        <td>
-                            <input type="number" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
-                        </td>
-                        <td>
-                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <input type="number" style="border: none; width: 100%; padding: 4px;">
-                        </td>
-                        <td>
-                            <textarea class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                `;
-                return newRow;
+            const newRow = document.createElement('tr');
+            newRow.className = 'fila-docencia';
+
+            newRow.innerHTML = `
+                <td>
+                <input type="number" name="anio_docencia[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
+                </td>
+                <td>
+                <textarea name="institucion_docencia[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                </td>
+                <td>
+                <textarea name="nombre_curso[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                </td>
+                <td>
+                <input type="number" name="horas_docencia[]" style="border: none; width: 100%; padding: 4px;">
+                </td>
+                <td>
+                <textarea name="folio_docencia[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                </td>
+            `;
+
+            return newRow;
             }
 
             const tbodyRef = document.getElementById('tbody-ref');

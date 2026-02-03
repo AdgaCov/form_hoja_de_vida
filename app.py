@@ -473,7 +473,9 @@ def imprimir_detalles(id):
     
     conn.close()
     
-    pdf_file = genera_pdf_detalles(persona, experiencia, resumen)
+    id_marcados = request.args.get("ids_marcados", "[]")
+    
+    pdf_file = genera_pdf_detalles(persona, experiencia, resumen, ids_marcados=id_marcados)
     nombre_pdf = f"DETALLES_HV_{id}.pdf"
     
     return send_file(

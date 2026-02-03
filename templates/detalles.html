@@ -229,18 +229,15 @@
                 margin: 10px 0;
                 page-break-inside: avoid;
             }
-            .fila-desmarcada {
+            .fila-exp.desmarcada {
                 background-color: #ffe6e6 !important;
+                color: #990000 !important;
+                text-decoration: line-through !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
 
-            .fila-desmarcada::after {
-                display: block !important;
-                background-color: #ff0000 !important;
-            }
-
-            .fila-desmarcada td {
+            .fila-exp.desmarcada td {
                 border-color: #990000 !important;
             }
         }
@@ -253,13 +250,13 @@
         }
 
         .fila-exp.desmarcada {
-        background-color: #ffe6e6;
-        color: #990000;
-        text-decoration: line-through;
+        background-color: #ffe6e6 !important;
+        color: #990000 !important;
+        text-decoration: line-through !important;
         }
 
         .fila-exp.desmarcada td {
-        border-color: #990000;
+        border-color: #990000 !important;
         }
     </style>
 </head>
@@ -418,7 +415,6 @@
 
     <!-- Botones de acción -->
     <div class="btn-container no-print" style="margin: 25px 0;">
-        <button type="button" class="btn btn-primary" id="btn-imprimir">Imprimir</button>
         <button type="button" class="btn btn-primary" id="btn-descargar-pdf">Descargar PDF</button>
     </div>
 
@@ -426,59 +422,143 @@
         console.log('Script cargado correctamente');
         const personaId = "{{ persona.id }}";
         console.log('Persona ID:', personaId);
-
-        // Función para calcular años y meses
-        function calcularAniosSeleccionados() {
-            console.log('📊 Calculando años...');
-            const filas = document.querySelectorAll(".fila-exp");
-            let totalMeses = 0;
-
-            filas.forEach(fila => {
+    
+        // 🔑 Clave única para esta persona
+        const STORAGE_KEY = `exp_seleccion_${personaId}`;
+    
+        // ============================
+        // LocalStorage helpers
+        // ============================
+        function guardarSeleccionEnStorage() {
+            const idsMarcados = obtenerIdsMarcados();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(idsMarcados));
+            console.log("💾 Selección guardada:", idsMarcados);
+        }
+    
+        function cargarSeleccionDesdeStorage() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return null;
+    
+            try {
+                return JSON.parse(raw);
+            } catch (e) {
+                console.error("❌ Error parseando localStorage:", e);
+                return null;
+            }
+        }
+    
+        function aplicarSeleccionGuardada() {
+            const idsGuardados = cargarSeleccionDesdeStorage();
+    
+            // Si no hay nada guardado, no tocamos nada
+            if (!idsGuardados) return;
+    
+            console.log("📌 Aplicando selección guardada:", idsGuardados);
+    
+            document.querySelectorAll(".fila-exp").forEach(fila => {
                 const chk = fila.querySelector(".chk-exp");
-                if (!chk || !chk.checked) return;
-
-                if (chk.checked) {
-                    fila.classList.remove('fila-desmarcada');
-                } else {
-                    fila.classList.add('fila-desmarcada');
-                }
-
-                if (!chk.checked) return;
-
-                const desdeCell = fila.querySelector(".exp-desde");
-                const hastaCell = fila.querySelector(".exp-hasta");
-
-                if (!desdeCell || !hastaCell) return;
-
-                const desde = desdeCell.dataset.fecha;
-                const hasta = hastaCell.dataset.fecha;
-
-                if (!desde || !hasta) return;
-
-                const fechaDesde = new Date(desde);
-                const fechaHasta = new Date(hasta);
-
-                if (isNaN(fechaDesde.getTime()) || isNaN(fechaHasta.getTime())) return;
-                if (fechaHasta < fechaDesde) return;
-
-                let meses = (fechaHasta.getFullYear() - fechaDesde.getFullYear()) * 12;
-                meses += (fechaHasta.getMonth() - fechaDesde.getMonth());
-
-                if (fechaHasta.getDate() < fechaDesde.getDate()) {
-                    meses -= 1;
-                }
-
-                totalMeses += Math.max(0, meses);
+                if (!chk) return;
+    
+                const id = fila.dataset.id;
+                chk.checked = idsGuardados.includes(id);
             });
+        }
+    
+        // ============================
+        // Cálculo
+        // ============================
+        function parseFecha(fechaStr) {
+    if (!fechaStr) return null;
 
-            const anios = Math.floor(totalMeses / 12);
-            const meses = totalMeses % 12;
+    fechaStr = fechaStr.trim();
 
-            document.getElementById("total-anios").value = anios;
-            document.getElementById("total-meses").value = meses;
-            console.log('Cálculo completado:', anios, 'años,', meses, 'meses');
+    // Caso 1: YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) {
+        const [y, m, d] = fechaStr.split("-").map(Number);
+        return new Date(y, m - 1, d); // local date
+    }
+
+    // Caso 2: DD/MM/YYYY
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(fechaStr)) {
+        const [d, m, y] = fechaStr.split("/").map(Number);
+        return new Date(y, m - 1, d);
+    }
+
+    // Último intento
+    const f = new Date(fechaStr);
+    return isNaN(f.getTime()) ? null : f;
+}
+
+function diffMesesJusto(desde, hasta) {
+    // Normalizar horas (evita bugs por timezone)
+    desde = new Date(desde.getFullYear(), desde.getMonth(), desde.getDate());
+    hasta = new Date(hasta.getFullYear(), hasta.getMonth(), hasta.getDate());
+
+    if (hasta < desde) return 0;
+
+    // Meses base
+    let meses = (hasta.getFullYear() - desde.getFullYear()) * 12 +
+                (hasta.getMonth() - desde.getMonth());
+
+    // 💡 Inclusivo: contar el mes final como trabajado
+    meses += 1;
+
+    // Si el día final es menor que el día inicial,
+    // entonces ese último mes NO está completo → restamos 1
+    if (hasta.getDate() < desde.getDate()) {
+        meses -= 1;
+    }
+
+    return Math.max(0, meses);
+}
+
+function calcularAniosSeleccionados() {
+    console.log('📊 Calculando años...');
+    const filas = document.querySelectorAll(".fila-exp");
+    let totalMeses = 0;
+
+    filas.forEach(fila => {
+        const chk = fila.querySelector(".chk-exp");
+        if (!chk) return;
+
+        // Pintar fila
+        if (chk.checked) {
+            fila.classList.remove("desmarcada");
+        } else {
+            fila.classList.add("desmarcada");
+            return;
         }
 
+        const desdeCell = fila.querySelector(".exp-desde");
+        const hastaCell = fila.querySelector(".exp-hasta");
+        if (!desdeCell || !hastaCell) return;
+
+        const desdeStr = (desdeCell.dataset.fecha || "").trim();
+        const hastaStr = (hastaCell.dataset.fecha || "").trim();
+        if (!desdeStr || !hastaStr) return;
+
+        const fechaDesde = parseFecha(desdeStr);
+        const fechaHasta = parseFecha(hastaStr);
+
+        if (!fechaDesde || !fechaHasta) {
+            console.warn("⚠️ Fecha inválida:", desdeStr, hastaStr);
+            return;
+        }
+
+        const meses = diffMesesJusto(fechaDesde, fechaHasta);
+        totalMeses += meses;
+    });
+
+    const anios = Math.floor(totalMeses / 12);
+    const meses = totalMeses % 12;
+
+    document.getElementById("total-anios").value = anios;
+    document.getElementById("total-meses").value = meses;
+
+    console.log('✅ Total:', totalMeses, 'meses =>', anios, 'años,', meses, 'meses');
+}
+
+    
         function obtenerIdsMarcados() {
             const ids = [];
             document.querySelectorAll(".fila-exp").forEach(fila => {
@@ -490,77 +570,77 @@
             });
             return ids;
         }
-
+    
+        // ============================
         // Eventos
+        // ============================
         document.addEventListener("DOMContentLoaded", function() {
             console.log('✅ DOM cargado');
-            
+    
+            // 1) aplicar selección guardada (si existe)
+            aplicarSeleccionGuardada();
+    
+            // 2) calcular
             calcularAniosSeleccionados();
-
+    
+            // 3) cada cambio guarda selección + recalcula
+            document.querySelectorAll(".chk-exp").forEach(chk => {
+                chk.addEventListener("change", () => {
+                    guardarSeleccionEnStorage();
+                    calcularAniosSeleccionados();
+                });
+            });
+    
             // Recalcular
             const btnRecalcular = document.getElementById("btn-recalcular");
             if (btnRecalcular) {
-                console.log('Botón recalcular encontrado');
                 btnRecalcular.addEventListener("click", function() {
-                    console.log('🔄 Recalculando...');
                     calcularAniosSeleccionados();
+                    guardarSeleccionEnStorage();
                 });
-            } else {
-                console.error('❌ Botón recalcular NO encontrado');
             }
-
+    
             // Seleccionar todos
             const btnSeleccionarTodos = document.getElementById("btn-seleccionar-todos");
             if (btnSeleccionarTodos) {
-                console.log('✅ Botón seleccionar todos encontrado');
                 btnSeleccionarTodos.addEventListener("click", function() {
-                    console.log('✔️ Seleccionando todos...');
                     document.querySelectorAll(".chk-exp").forEach(c => c.checked = true);
+                    guardarSeleccionEnStorage();
                     calcularAniosSeleccionados();
                 });
-            } else {
-                console.error('❌ Botón seleccionar todos NO encontrado');
             }
-
+    
             // Quitar selección
             const btnQuitarSeleccion = document.getElementById("btn-quitar-seleccion");
             if (btnQuitarSeleccion) {
-                console.log('Botón quitar selección encontrado');
                 btnQuitarSeleccion.addEventListener("click", function() {
-                    console.log('Quitando selección...');
                     document.querySelectorAll(".chk-exp").forEach(c => c.checked = false);
+                    guardarSeleccionEnStorage();
                     calcularAniosSeleccionados();
                 });
-            } else {
-                console.error('❌ Botón quitar selección NO encontrado');
             }
-
-            
-
+    
             // Guardar resumen
             const btnGuardarResumen = document.getElementById("btn-guardar-resumen");
             if (btnGuardarResumen) {
-                console.log('✅ Botón guardar resumen encontrado');
                 btnGuardarResumen.addEventListener("click", async function() {
-                    console.log('💾 Guardando resumen...');
                     const anios = document.getElementById("total-anios").value;
                     const meses = document.getElementById("total-meses").value;
-
+    
                     try {
                         const response = await fetch('/guardar_resumen/' + personaId, {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
+                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ anios: parseInt(anios), meses: parseInt(meses) })
                         });
-
+    
                         const data = await response.json();
                         console.log('📨 Respuesta del servidor:', data);
-                        
+    
                         if (data.success) {
                             alert('✅ Resumen guardado correctamente');
-                            location.reload();
+                            // ❌ NO recargues, porque te revienta selección
+                            // location.reload();
                         } else {
                             alert('❌ Error: ' + data.message);
                         }
@@ -569,41 +649,21 @@
                         alert('❌ Error al guardar: ' + error);
                     }
                 });
-            } else {
-                console.error('❌ Botón guardar resumen NO encontrado');
             }
-
-            // Recalcular cuando cambian checks
-            document.querySelectorAll(".chk-exp").forEach(chk => {
-                chk.addEventListener("change", calcularAniosSeleccionados);
-            });
-
-            // Botón imprimir
-            const btnImprimir = document.getElementById("btn-imprimir");
-            if (btnImprimir) {
-                console.log('✅ Botón imprimir encontrado');
-                btnImprimir.addEventListener("click", function() {
-                    console.log('🖨️ Imprimiendo...');
-                    window.print();
-                });
-            } else {
-                console.error('❌ Botón imprimir NO encontrado');
-            }
-
+    
             // Botón descargar PDF
             const btnDescargarPdf = document.getElementById("btn-descargar-pdf");
             if (btnDescargarPdf) {
-                console.log('✅ Botón descargar PDF encontrado');
                 btnDescargarPdf.addEventListener("click", function() {
-                    console.log('📄 Descargando PDF...');
                     const idsMarcados = obtenerIdsMarcados();
+                    guardarSeleccionEnStorage(); // guardamos antes de abrir
+    
                     const url = `/imprimir_detalles/${personaId}?ids_marcados=${encodeURIComponent(JSON.stringify(idsMarcados))}`;
                     window.open(url, '_blank');
                 });
-            } else {
-                console.error('❌ Botón descargar PDF NO encontrado');
             }
         });
     </script>
+    
 </body>
 </html>

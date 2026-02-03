@@ -154,19 +154,38 @@ def genera_pdf_detalles(persona, experiencia=None, resumen=None, ids_marcados=No
             pdf.cell(35, 10, periodo, border=1, align='C')
             pdf.cell(53, 10, motivo, border=1, ln=True)
             
-            # Si NO está marcada, dibujar línea roja
-            if not esta_marcada:
-                # Calcular posición Y para la línea (mitad de la celda)
-                linea_y = y_inicio_fila + 5  # 5 es la mitad de 10 (altura de celda)
-                
-                # Dibujar línea roja a través de toda la fila
-                pdf.set_draw_color(*RED)
-                pdf.set_line_width(0.8)
-                pdf.line(10, linea_y, 200, linea_y)  # De margen izquierdo a derecho
-                
-                # Restaurar color de dibujo
-                pdf.set_draw_color(0, 0, 0)
-                pdf.set_line_width(0.2)
+            # Si NO está marcada, dibujar estilo "desmarcada" (rojo + fondo + tachado)
+    if not esta_marcada:
+        # 1) Pintar fondo rojo suave sobre la fila (encima del blanco)
+        x_inicio = pdf.l_margin
+        y_fila = y_inicio_fila
+        w_fila = 55 + 42 + 35 + 53
+        h_fila = 10
+
+        pdf.set_fill_color(*LIGHT_RED)
+        pdf.rect(x_inicio, y_fila, w_fila, h_fila, style="F")
+
+        # 2) Volver a escribir la fila en rojo (para que se vea encima del fondo)
+        pdf.set_xy(x_inicio, y_fila)
+        pdf.set_text_color(153, 0, 0)
+        pdf.set_font('Helvetica', '', 7)
+
+        pdf.cell(55, 10, nombre, border=1)
+        pdf.cell(42, 10, puesto, border=1)
+        pdf.cell(35, 10, periodo, border=1, align='C')
+        pdf.cell(53, 10, motivo, border=1, ln=True)
+
+        # 3) Dibujar línea roja centrada (tachado) SOLO dentro de la tabla
+        linea_y = y_fila + (h_fila / 2)
+
+        pdf.set_draw_color(153, 0, 0)
+        pdf.set_line_width(0.7)
+        pdf.line(x_inicio + 1, linea_y, x_inicio + w_fila - 1, linea_y)
+
+        # 4) Restaurar estilos normales
+        pdf.set_draw_color(0, 0, 0)
+        pdf.set_text_color(0, 0, 0)
+        pdf.set_line_width(0.2)
 
     else:
         pdf.set_font('Helvetica', 'I', 9)
