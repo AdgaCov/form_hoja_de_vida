@@ -60,41 +60,73 @@ class FormularioPDF(FPDF):
         return False
 
 def _calc_lines(pdf, w, txt):
-    """Calcula cuántas líneas ocupará un texto en un ancho w usando multi_cell"""
-    if txt is None:
-        txt = ""
-    txt = str(txt)
-    if txt == "":
-        return 1
-    # cálculo aproximado basado en ancho de texto
-    words = txt.split(" ")
-    lines = 1
-    current = ""
-    for word in words:
-        test = (current + " " + word).strip()
-        if pdf.get_string_width(test) <= w - 2:
-            current = test
-        else:
-            lines += 1
-            current = word
-    return lines
-
-def row_multicell(pdf, data, widths, line_height=5, aligns=None):
     """
-    Dibuja una fila tipo tabla usando multi_cell sin que se salga del borde.
-    data: lista de strings
-    widths: lista de anchos
-    aligns: lista de alineaciones ('L','C','R')
+    Calcula cuántas líneas ocupará un texto dentro de un ancho w.
+    Soporta palabras largas sin espacios (ej: 'aaaaaaaaaaaa').
+    """
+    txt = safe_text(txt)
+
+    if txt.strip() == "":
+        return 1
+
+    # margen interno (padding)
+    usable_w = w - 2
+    if usable_w <= 0:
+        return 1
+
+    lines = 0
+    for paragraph in txt.split("\n"):
+        if paragraph == "":
+            lines += 1
+            continue
+
+        current_line = ""
+        for word in paragraph.split(" "):
+            if word == "":
+                continue
+
+            test = (current_line + " " + word).strip()
+
+            # Si cabe, lo agregamos
+            if pdf.get_string_width(test) <= usable_w:
+                current_line = test
+            else:
+                # Si ya había contenido, cerramos línea
+                if current_line:
+                    lines += 1
+                    current_line = word
+                else:
+                    # Palabra demasiado larga: partirla por caracteres
+                    chunk = ""
+                    for ch in word:
+                        test2 = chunk + ch
+                        if pdf.get_string_width(test2) <= usable_w:
+                            chunk = test2
+                        else:
+                            lines += 1
+                            chunk = ch
+                    current_line = chunk
+
+        if current_line:
+            lines += 1
+
+    return max(1, lines)
+
+
+def row_multicell(pdf, data, widths, line_height=5, aligns=None, valign="T"):
+    """
+    Dibuja una fila de tabla usando multi_cell SIN que se sobreponga.
+    - Mantiene ancho fijo
+    - Ajusta altura según el texto más largo
     """
     if aligns is None:
         aligns = ["L"] * len(data)
 
-    # calcular altura máxima según el contenido
+    # Calcular altura máxima de la fila
     max_lines = 1
     for txt, w in zip(data, widths):
         lines = _calc_lines(pdf, w, txt)
-        if lines > max_lines:
-            max_lines = lines
+        max_lines = max(max_lines, lines)
 
     row_h = max_lines * line_height
 
@@ -105,21 +137,36 @@ def row_multicell(pdf, data, widths, line_height=5, aligns=None):
     x_start = pdf.get_x()
     y_start = pdf.get_y()
 
+    # Dibujar cada celda
     for i, (txt, w) in enumerate(zip(data, widths)):
         x = pdf.get_x()
         y = pdf.get_y()
 
-        # borde
+        # Borde
         pdf.rect(x, y, w, row_h)
 
-        # texto
+        # Ajuste vertical opcional (Top / Middle)
+        text_lines = _calc_lines(pdf, w, txt)
+        text_h = text_lines * line_height
+
+        if valign == "M":
+            y_text = y + (row_h - text_h) / 2
+        else:
+            y_text = y
+
+        # Escribir texto dentro de la celda
+        pdf.set_xy(x, y_text)
         pdf.multi_cell(w, line_height, safe_text(txt), border=0, align=aligns[i])
 
-        # volver arriba y moverse a la derecha
+        # Restaurar posición para siguiente celda (a la derecha)
         pdf.set_xy(x + w, y)
 
-    # bajar a la siguiente fila
+    # Bajar una sola vez al final de la fila
     pdf.set_xy(x_start, y_start + row_h)
+
+def cortar(txt, max_len=120):
+    txt = safe_text(txt)
+    return txt if len(txt) <= max_len else txt[:max_len] + "..."
 
 
 def genera_pdf_formulario(persona, experiencia=None, formacion=None, cursos=None,
@@ -197,14 +244,14 @@ def genera_pdf_formulario(persona, experiencia=None, formacion=None, cursos=None
             row_multicell(
                 pdf,
                 [
-                    f.get('detalle', ''),
-                    f.get('institucion', ''),
-                    f.get('grado', ''),
-                    f.get('anio', ''),        # ✅ AÑO siempre visible
-                    f.get('n_folio', '')
+                    cortar(f.get('detalle', '')),
+                    cortar(f.get('institucion', '')),
+                    cortar(f.get('grado', '')),
+                    cortar(f.get('anio', '')),        # ✅ AÑO siempre visible
+                    cortar(f.get('n_folio', ''))
                 ],
                 widths,
-                line_height=4,
+                line_height=4.5,
                 aligns=['L', 'L', 'L', 'C', 'C']
             )
     else:
@@ -216,38 +263,44 @@ def genera_pdf_formulario(persona, experiencia=None, formacion=None, cursos=None
     # ==================== III. EXPERIENCIA LABORAL ====================
     pdf.check_page_break(40)
     pdf.section_title('III. EXPERIENCIA LABORAL')
-    
+
     if experiencia and len(experiencia) > 0:
-        # Encabezados de tabla
+        widths = [55, 42, 35, 53]  # deben sumar ~185
+
+        # Encabezado
         pdf.set_font('Helvetica', 'B', 8)
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(55, 7, 'Institución/Empresa', border=1, fill=True, align='C')
-        pdf.cell(42, 7, 'Cargo', border=1, fill=True, align='C')
-        pdf.cell(35, 7, 'Periodo', border=1, fill=True, align='C')
-        pdf.cell(53, 7, 'Motivo Retiro', border=1, fill=True, align='C', ln=True)
-        
-        # Filas de datos
+        headers = ['Institución/Empresa', 'Cargo', 'Periodo', 'Motivo Retiro']
+
+        for h, w in zip(headers, widths):
+            pdf.cell(w, 7, h, border=1, fill=True, align='C')
+        pdf.ln()
+
+        # Filas
         pdf.set_font('Helvetica', '', 7)
         for exp in experiencia:
-            pdf.check_page_break(10)
-            
-            nombre = safe_text(exp.get('nombre', ''))[:45]
-            puesto = safe_text(exp.get('puesto', ''))[:30]
             desde = safe_text(exp.get('desde', ''))
             hasta = safe_text(exp.get('hasta', ''))
-            periodo = f"{desde}-{hasta}" if desde or hasta else ""
-            motivo = safe_text(exp.get('motivo', ''))[:40]
-            
-            pdf.cell(55, 10, nombre, border=1)
-            pdf.cell(42, 10, puesto, border=1)
-            pdf.cell(35, 10, periodo, border=1, align='C')
-            pdf.cell(53, 10, motivo, border=1, ln=True)
+            periodo = f"{desde} - {hasta}".strip(" -")
+
+            row_multicell(
+                pdf,
+                [
+                    exp.get('nombre', ''),
+                    exp.get('puesto', ''),
+                    periodo,
+                    exp.get('motivo', ''),
+                ],
+                widths,
+                line_height=4,
+                aligns=['L', 'L', 'C', 'L']
+            )
     else:
         pdf.set_font('Helvetica', 'I', 9)
         pdf.cell(0, 8, 'Sin registros de experiencia laboral', ln=True)
-    
+
     pdf.ln(8)
-    
+
     # ==================== IV. CURSOS Y CAPACITACIONES ====================
     if cursos and len(cursos) > 0:
         pdf.check_page_break(40)
@@ -268,14 +321,14 @@ def genera_pdf_formulario(persona, experiencia=None, formacion=None, cursos=None
             row_multicell(
                 pdf,
                 [
-                    c.get('anio', ''),                 # ✅ AÑO SIEMPRE
-                    c.get('area_capacitacion', ''),
-                    c.get('institucion', ''),
-                    c.get('nombre_capacitacion', ''),
-                    c.get('duracion_horas', '')
+                    safe_text(c.get('anio', '')),                 # ✅ AÑO SIEMPRE
+                    safe_text(c.get('area_capacitacion', '')),
+                    safe_text(c.get('institucion', '')),
+                    safe_text(c.get('nombre_capacitacion', '')),
+                    safe_text(c.get('duracion_horas', ''))
                 ],
                 widths,
-                line_height=4,
+                line_height=3.8,
                 aligns=['C', 'L', 'L', 'L', 'C']
             )
 

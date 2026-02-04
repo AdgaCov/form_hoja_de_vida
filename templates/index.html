@@ -39,7 +39,7 @@
         {% endif %}
     {% endwith %}
 
-    <form method="POST" action="{{ url_for('guardar_formulario') }}">
+    <form id="formulario-hv" method="POST" action="{{ url_for('guardar_formulario') }}">
         <div class="container">
             <div class="header">
                 I. DATOS PERSONALES
@@ -170,7 +170,7 @@
                                 <textarea name="grado[]" rows="1" class="auto-resize"></textarea>
                             </td>
                             <td>
-                                <input type="number" name="anio_formacion[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
+                                <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
                             </td>
                             <td>
                                 <input type="text"
@@ -237,7 +237,7 @@
                     <tbody id="tbody-cursos">
                         <tr class="fila-cursos">
                             <td>
-                                <input type="number" name="anio_curso[]" style="border: none; width: 100%; padding: 4px;">
+                                <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;">
                             </td>
                             <td>
                                 <textarea type="text" name="cap[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
@@ -488,8 +488,12 @@
             </div>
         </div>
         <div>
-            <button type="submit" style="text-decoration: none; color: #003366; font-weight: bold; padding: 8px 15px; border: 2px solid #003366; border-radius: 5px; display: flex; text-align: center; justify-content: center;">GUARDAR</button>
+            <button id="btn-guardar" type="button"
+                style="text-decoration: none; color: #003366; font-weight: bold; padding: 8px 15px; border: 2px solid #003366; border-radius: 5px; display: flex; text-align: center; justify-content: center;">
+                GUARDAR
+            </button>
         </div>
+
     </form>
 
     <div class="modal" id="modalReimprimir">
@@ -950,6 +954,22 @@
             if (e.target === modal) {
                 modal.style.display = "none";
             }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("formulario-hv");
+        const btnGuardar = document.getElementById("btn-guardar");
+
+        btnGuardar.addEventListener("click", () => {
+            const ok = confirm("¿Estás segura de guardar los datos y descargar el PDF?");
+
+            if (!ok) {
+            // Si presiona NO -> se queda en el formulario
+            return;
+            }
+            // Si presiona SÍ -> se envía el formulario (se guarda y descarga PDF)
+            form.submit();
+        });
         });
     </script>
 </body>

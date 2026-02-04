@@ -51,6 +51,106 @@ class DetallesPDF(FPDF):
         
         self.line(x_start, y_start + height, x_start + value_w, y_start + height)
 
+def _calc_lines(pdf, w, txt):
+    """
+    Calcula cuántas líneas ocupará un texto dentro de un ancho w.
+    Soporta palabras largas sin espacios.
+    """
+    txt = safe_text(txt)
+
+    if txt.strip() == "":
+        return 1
+
+    usable_w = w - 2  # padding interno
+    if usable_w <= 0:
+        return 1
+
+    lines = 0
+    for paragraph in txt.split("\n"):
+        if paragraph == "":
+            lines += 1
+            continue
+
+        current_line = ""
+        for word in paragraph.split(" "):
+            if word == "":
+                continue
+
+            test = (current_line + " " + word).strip()
+
+            if pdf.get_string_width(test) <= usable_w:
+                current_line = test
+            else:
+                if current_line:
+                    lines += 1
+                    current_line = word
+                else:
+                    # palabra muy larga: partir por caracteres
+                    chunk = ""
+                    for ch in word:
+                        test2 = chunk + ch
+                        if pdf.get_string_width(test2) <= usable_w:
+                            chunk = test2
+                        else:
+                            lines += 1
+                            chunk = ch
+                    current_line = chunk
+
+        if current_line:
+            lines += 1
+
+    return max(1, lines)
+
+
+def row_multicell(pdf, data, widths, line_height=4.5, aligns=None, fill=False, fill_color=(255,255,255), text_color=(0,0,0)):
+    """
+    Dibuja una fila tipo tabla usando multi_cell sin superposición.
+    - respeta ancho fijo
+    - altura dinámica según celda más grande
+    """
+    if aligns is None:
+        aligns = ["L"] * len(data)
+
+    # calcular altura máxima
+    max_lines = 1
+    for txt, w in zip(data, widths):
+        max_lines = max(max_lines, _calc_lines(pdf, w, txt))
+
+    row_h = max_lines * line_height
+
+    # salto de página si no entra
+    if pdf.get_y() + row_h > pdf.page_break_trigger:
+        pdf.add_page()
+
+    x_start = pdf.get_x()
+    y_start = pdf.get_y()
+
+    # estilos
+    pdf.set_fill_color(*fill_color)
+    pdf.set_text_color(*text_color)
+
+    for i, (txt, w) in enumerate(zip(data, widths)):
+        x = pdf.get_x()
+        y = pdf.get_y()
+
+        # borde + fondo
+        if fill:
+            pdf.rect(x, y, w, row_h, style="DF")
+        else:
+            pdf.rect(x, y, w, row_h)
+
+        # texto
+        pdf.set_xy(x, y)
+        pdf.multi_cell(w, line_height, safe_text(txt), border=0, align=aligns[i])
+
+        # volver arriba y avanzar a la derecha
+        pdf.set_xy(x + w, y)
+
+    # bajar una sola vez al final
+    pdf.set_xy(x_start, y_start + row_h)
+
+    # devolver info útil por si quieres tachar o pintar
+    return x_start, y_start, sum(widths), row_h
 
 def genera_pdf_detalles(persona, experiencia=None, resumen=None, ids_marcados=None):
     """Genera PDF simplificado con datos personales y experiencia"""
@@ -116,83 +216,77 @@ def genera_pdf_detalles(persona, experiencia=None, resumen=None, ids_marcados=No
     
     # ==================== III. EXPERIENCIA LABORAL ====================
     pdf.section_title('III. EXPERIENCIA LABORAL')
-    
+
     if experiencia and len(experiencia) > 0:
+        widths = [55, 42, 35, 53]
+        headers = ['Institución/Empresa', 'Cargo', 'Periodo', 'Motivo Retiro']
+
         # Encabezados
         pdf.set_font('Helvetica', 'B', 8)
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(55, 7, 'Institución/Empresa', border=1, fill=True, align='C')
-        pdf.cell(42, 7, 'Cargo', border=1, fill=True, align='C')
-        pdf.cell(35, 7, 'Periodo', border=1, fill=True, align='C')
-        pdf.cell(53, 7, 'Motivo Retiro', border=1, fill=True, align='C', ln=True)
-        
+        for h, w in zip(headers, widths):
+            pdf.cell(w, 7, h, border=1, fill=True, align='C')
+        pdf.ln()
+
         # Filas
         pdf.set_font('Helvetica', '', 7)
+
         for exp in experiencia:
             exp_id = exp.get('id')
-            nombre = safe_text(exp.get('nombre', ''))[:45]
-            puesto = safe_text(exp.get('puesto', ''))[:30]
+
+            nombre = safe_text(exp.get('nombre', ''))
+            puesto = safe_text(exp.get('puesto', ''))
             desde = safe_text(exp.get('desde', ''))
             hasta = safe_text(exp.get('hasta', ''))
             periodo = f"{desde} - {hasta}" if desde or hasta else ""
-            motivo = safe_text(exp.get('motivo', ''))[:40]
+            motivo = safe_text(exp.get('motivo', ''))
 
             # Verificar si está marcada
             esta_marcada = True
             if ids_marcados is not None and len(ids_marcados) > 0:
                 esta_marcada = exp_id in ids_marcados
-            
-            # Guardar posición Y antes de dibujar la fila
-            y_inicio_fila = pdf.get_y()
-            
-            # Dibujar celdas (sin color de fondo especial)
-            pdf.set_fill_color(255, 255, 255)
-            pdf.set_text_color(0, 0, 0)
-            
-            pdf.cell(55, 10, nombre, border=1)
-            pdf.cell(42, 10, puesto, border=1)
-            pdf.cell(35, 10, periodo, border=1, align='C')
-            pdf.cell(53, 10, motivo, border=1, ln=True)
-            
-            # Si NO está marcada, dibujar estilo "desmarcada" (rojo + fondo + tachado)
-    if not esta_marcada:
-        # 1) Pintar fondo rojo suave sobre la fila (encima del blanco)
-        x_inicio = pdf.l_margin
-        y_fila = y_inicio_fila
-        w_fila = 55 + 42 + 35 + 53
-        h_fila = 10
 
-        pdf.set_fill_color(*LIGHT_RED)
-        pdf.rect(x_inicio, y_fila, w_fila, h_fila, style="F")
+            # estilos normales o desmarcada
+            if esta_marcada:
+                fill = False
+                fill_color = (255, 255, 255)
+                text_color = (0, 0, 0)
+            else:
+                fill = True
+                fill_color = LIGHT_RED
+                text_color = (153, 0, 0)
 
-        # 2) Volver a escribir la fila en rojo (para que se vea encima del fondo)
-        pdf.set_xy(x_inicio, y_fila)
-        pdf.set_text_color(153, 0, 0)
-        pdf.set_font('Helvetica', '', 7)
+            # dibujar fila dinámica
+            x, y, w_total, h_total = row_multicell(
+                pdf,
+                [nombre, puesto, periodo, motivo],
+                widths,
+                line_height=4.5,
+                aligns=['L', 'L', 'C', 'L'],
+                fill=fill,
+                fill_color=fill_color,
+                text_color=text_color
+            )
 
-        pdf.cell(55, 10, nombre, border=1)
-        pdf.cell(42, 10, puesto, border=1)
-        pdf.cell(35, 10, periodo, border=1, align='C')
-        pdf.cell(53, 10, motivo, border=1, ln=True)
+            # si NO marcada: tachado centrado dentro de la fila completa
+            if not esta_marcada:
+                linea_y = y + (h_total / 2)
 
-        # 3) Dibujar línea roja centrada (tachado) SOLO dentro de la tabla
-        linea_y = y_fila + (h_fila / 2)
+                pdf.set_draw_color(153, 0, 0)
+                pdf.set_line_width(0.7)
+                pdf.line(x + 1, linea_y, x + w_total - 1, linea_y)
 
-        pdf.set_draw_color(153, 0, 0)
-        pdf.set_line_width(0.7)
-        pdf.line(x_inicio + 1, linea_y, x_inicio + w_fila - 1, linea_y)
-
-        # 4) Restaurar estilos normales
-        pdf.set_draw_color(0, 0, 0)
-        pdf.set_text_color(0, 0, 0)
-        pdf.set_line_width(0.2)
+                # restaurar estilos
+                pdf.set_draw_color(0, 0, 0)
+                pdf.set_text_color(0, 0, 0)
+                pdf.set_line_width(0.2)
 
     else:
         pdf.set_font('Helvetica', 'I', 9)
         pdf.cell(0, 8, 'Sin registros de experiencia laboral', ln=True)
-    
+
     pdf.ln(8)
-    
+
     # ==================== RESUMEN DE EXPERIENCIA ====================
     if resumen:
         pdf.set_fill_color(227, 242, 253)

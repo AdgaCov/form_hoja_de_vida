@@ -632,7 +632,7 @@ def guardar_formulario():
             detalles = request.form.getlist('detalle[]')
             instituciones = request.form.getlist('institucion[]')
             grados = request.form.getlist('grado[]')
-            anios = request.form.getlist('anio_formacion[]')
+            anios = request.form.getlist('anio[]')
             folios = request.form.getlist('n_folio[]')
 
             for detalle, institucion, grado, anio, folio in zip_longest(detalles, instituciones, grados, anios, folios, fillvalue=""):
@@ -681,7 +681,7 @@ def guardar_formulario():
                 """, (persona_id, nombre, puesto, breve, desde if desde else None, hasta if hasta else None, motivo))
 
             #cursos
-            anios_cursos = request.form.getlist('anio_curso[]')
+            anios_cursos = request.form.getlist('anio[]')
             capacitaciones = request.form.getlist('cap[]')
             instituciones_curso = request.form.getlist('inst[]')
             nombres_cap = request.form.getlist('n_cap[]')
