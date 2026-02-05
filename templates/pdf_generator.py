@@ -182,46 +182,40 @@ def genera_pdf_formulario(persona, experiencia=None, formacion=None, cursos=None
     # ==================== I. DATOS PERSONALES ====================
     pdf.section_title('I. DATOS PERSONALES')
     
-    # Fila 1: Nombres y apellidos
+    # Fila 1
     pdf.add_labeled_field('Nombres:', persona.get('nombres', ''), 17, 45)
-    pdf.add_labeled_field('Ap. Paterno:', persona.get('ap_pat', ''), 20, 40)
-    pdf.add_labeled_field('Ap. Materno:', persona.get('ap_mat', ''), 23, 40)
+    pdf.add_labeled_field('Ap. Paterno:', persona.get('ap_pat', ''), 22, 40)
+    pdf.add_labeled_field('Ap. Materno:', persona.get('ap_mat', ''), 22, 40)
     pdf.ln(7)
     
-    # Fila 2: CI y estado civil
-    pdf.add_labeled_field('CI:', persona.get('ci', ''), 8, 35)
-    pdf.add_labeled_field('Exp:', persona.get('exp', ''), 10, 18)
-    pdf.add_labeled_field('Estado Civil:', persona.get('est_civil', ''), 25, 50)
+    # Fila 2
+    pdf.add_labeled_field('CI:', persona.get('ci', ''), 8, 54)
+    pdf.add_labeled_field('Exp:', persona.get('exp', ''), 10, 53)
+    pdf.add_labeled_field('Estado Civil:', persona.get('est_civil', ''), 22, 36)
     pdf.ln(7)
     
-    # Fila 3: Fecha y lugar de nacimiento
-    pdf.add_labeled_field('Fecha Nac:', persona.get('fecha_nac', ''), 18, 35)
-    pdf.add_labeled_field('Lugar:', persona.get('lugar', ''), 13, 60)
-    pdf.add_labeled_field('Nacionalidad:', persona.get('nacio', ''), 24, 35)
+    # Fila 3
+    pdf.add_labeled_field('Fecha Nac:', persona.get('fecha_nac', ''), 20, 41)
+    pdf.add_labeled_field('Lugar:', persona.get('lugar', ''), 12, 53)
+    pdf.add_labeled_field('Nacionalidad:', persona.get('nacio', ''), 24, 36)
     pdf.ln(7)
     
-    # Fila 4: Dirección y ciudad
+    # Fila 4
     pdf.add_labeled_field('Dirección:', persona.get('direccion', ''), 22, 95)
     pdf.add_labeled_field('Ciudad:', persona.get('ciudad', ''), 17, 50)
     pdf.ln(7)
     
-    # Fila 5: Grupo sanguíneo
-    pdf.add_labeled_field('Grupo Sanguíneo:', persona.get('gr_san', ''), 38, 20)
+    # Fila 5
+    pdf.add_labeled_field('Grupo Sanguíneo:', persona.get('gr_san', ''), 30, 30)
+    pdf.add_labeled_field('Tel. Celular:', persona.get('tcel', ''), 20, 40)
+    pdf.add_labeled_field('Tel. Fijo:', persona.get('tfijo', ''), 17, 40)
     pdf.ln(7)
-    
-    # Fila 6: Teléfonos
-    pdf.add_labeled_field('Tel. Celular:', persona.get('tcel', ''), 27, 40)
-    pdf.add_labeled_field('Tel. Fijo:', persona.get('tfijo', ''), 20, 40)
+
+    # Fila 7
+    pdf.add_labeled_field('Correo Electrónico:', persona.get('correo', ''), 32, 85)
+    pdf.add_labeled_field('N° Libreta Servicio Militar:', persona.get('n_libser', ''), 43, 25)
     pdf.ln(7)
-    
-    # Fila 7: Correo
-    pdf.add_labeled_field('Correo Electrónico:', persona.get('correo', ''), 35, 145)
-    pdf.ln(7)
-    
-    # Fila 8: Libreta militar (línea más corta)
-    pdf.add_labeled_field('N° Libreta Servicio Militar:', persona.get('n_libser', ''), 45, 30)
-    pdf.ln(10)
-    
+
         # ==================== II. FORMACIÓN ACADÉMICA ====================
     pdf.check_page_break(40)
     pdf.section_title('II. FORMACIÓN ACADÉMICA')
