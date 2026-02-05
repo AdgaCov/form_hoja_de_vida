@@ -83,6 +83,7 @@
                     <div class="form-group">
                         <label>Estado Civil:</label>
                         <select name="est_civil">
+                            <option value="">Seleccione...</option>
                             <option value="Soltero(a)">Soltero(a)</option>
                             <option value="Casado(a)">Casado(a)</option>
                             <option value="Divorciado(a)">Divorciado(a)</option>
@@ -170,7 +171,7 @@
                                 <textarea name="grado[]" rows="1" class="auto-resize"></textarea>
                             </td>
                             <td>
-                                <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
+                                <input type="number" name="anio_form[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
                             </td>
                             <td>
                                 <input type="text"
@@ -237,7 +238,7 @@
                     <tbody id="tbody-cursos">
                         <tr class="fila-cursos">
                             <td>
-                                <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;">
+                                <input type="number" name="anio_curso[]" style="border: none; width: 100%; padding: 4px;">
                             </td>
                             <td>
                                 <textarea type="text" name="cap[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
@@ -343,7 +344,7 @@
                     <tbody id="tbody-docencia">
                         <tr class="fila-docencia">
                             <td>
-                                <input type="number" name="anio_docencia[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
+                                <input type="number" name="anio_doc[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
                             </td>
                             <td>
                                 <textarea name="institucion_docencia[]" rows="1" class="auto-resize" type="text" style="border: none; width: 100%; padding: 4px;"></textarea>
@@ -656,6 +657,21 @@
                 });
             }
 
+            function isRowCompletePaquetes(row){
+                const paquete = row.querySelector('textarea[name="paquete[]"]');
+                const folio = row.querySelector('input[name="folio_paquete[]"]');
+                const radios = row.querySelectorAll('input[type="radio"]');
+
+                const paqueteok = paquete && paquete.value.trim() != '';
+                const foliook = folio && folio.value.trim() != '';
+
+                let radioChecked = false;
+                radios.forEach(r => {
+                    if(r.checked) radioChecked = true;
+                });
+                return paqueteok && foliook && radioChecked;
+            }
+
             const tbodyFormacion = document.getElementById('tbody-formacion');
 
             function createNewRowFormacion(){
@@ -672,7 +688,7 @@
                         <textarea class="auto-resize" name="grado[]" rows="1" style="border: none; width: 100%; padding: 4px; resize: none; overflow: hidden; font-family: inherit; font-size: inherit;"></textarea>
                     </td>
                     <td>
-                        <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
+                        <input type="number" name="anio_form[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
                     </td>
                     <td>
                         <input type="text" name="n_folio[]" style="border: none; width: 100%; padding: 4px;">
@@ -688,7 +704,7 @@
                 newRow.className = 'fila-cursos';
                 newRow.innerHTML = `
                         <td>
-                            <input type="number" name="anio[]" style="border: none; width: 100%; padding: 4px;">
+                            <input type="number" name="anio_curso[]" style="border: none; width: 100%; padding: 4px;">
                         </td>
                         <td>
                             <textarea type="text" name="cap[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
@@ -742,12 +758,13 @@
             const tbodyPaquetes = document.getElementById('tbody-paquetes');
 
             function createNewRowPaquetes(){
+                const index = tbodyPaquetes.querySelectorAll('tr.fila-paquetes').length;
                 const newRow = document.createElement('tr');
                 newRow.className = 'fila-paquetes';
                 newRow.dataset.index = index;
 
                 newRow.innerHTML = `
-                        <td>
+                            <td>
                                 <textarea name="paquete[]" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
                             </td>
                             <td>
@@ -764,6 +781,25 @@
                             </td>
                 `;
                 return newRow;
+            }
+
+            function addRowEventsPaquetes(row){
+                const inputs = row.querySelectorAll('textarea, input');
+
+                inputs.forEach(input =>{
+                    input.addEventListener('input', checkAddRow);
+                    input.addEventListener('change', checkAddRow);
+                });
+
+                function checkAddRow(){
+                    const isLastRow = row === tbodyPaquetes.lastElementChild;
+
+                    if(isLastRow && isRowCompletePaquetes(row)){
+                        const newRow = createNewRowPaquetes();
+                        tbodyPaquetes.appendChild(newRow);
+                        addRowEventsPaquetes(newRow);
+                    }
+                }
             }
 
             const tbodyIdiomas = document.getElementById('tbody-idiomas');
@@ -805,7 +841,7 @@
 
             newRow.innerHTML = `
                 <td>
-                <input type="number" name="anio_docencia[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
+                <input type="number" name="anio_doc[]" style="border: none; width: 100%; padding: 4px;" min="1900" max="2100">
                 </td>
                 <td>
                 <textarea name="institucion_docencia[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
@@ -830,18 +866,18 @@
                 const newRow = document.createElement('tr');
                 newRow.className = 'fila-ref';
                 newRow.innerHTML = `
-                        <td>
-                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <textarea class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
-                        </td>
-                        <td>
-                            <input type="text" style="border: none; width: 100%; padding: 4px;">
-                        </td>
+                            <td>
+                                <textarea name="nombre_ref[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <textarea name="institucion_ref[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <textarea name="puesto_ref[]" rows="1" class="auto-resize" style="border: none; width: 100%; padding: 4px;"></textarea>
+                            </td>
+                            <td>
+                                <input type="text" name="telefono_ref[]" style="border: none; width: 100%; padding: 4px;">
+                            </td>
                 `;
                 return newRow;
             }

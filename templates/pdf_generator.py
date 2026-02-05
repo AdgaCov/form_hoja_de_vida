@@ -247,7 +247,7 @@ def genera_pdf_formulario(persona, experiencia=None, formacion=None, cursos=None
                     cortar(f.get('detalle', '')),
                     cortar(f.get('institucion', '')),
                     cortar(f.get('grado', '')),
-                    cortar(f.get('anio', '')),        # ✅ AÑO siempre visible
+                    cortar(f.get('anio_form', '')),
                     cortar(f.get('n_folio', ''))
                 ],
                 widths,
@@ -321,7 +321,7 @@ def genera_pdf_formulario(persona, experiencia=None, formacion=None, cursos=None
             row_multicell(
                 pdf,
                 [
-                    safe_text(c.get('anio', '')),                 # ✅ AÑO SIEMPRE
+                    safe_text(c.get('anio_curso', '')),
                     safe_text(c.get('area_capacitacion', '')),
                     safe_text(c.get('institucion', '')),
                     safe_text(c.get('nombre_capacitacion', '')),
@@ -430,7 +430,7 @@ def genera_pdf_formulario(persona, experiencia=None, formacion=None, cursos=None
             row_multicell(
                 pdf,
                 [
-                    d.get('anio', ''),                  # ✅ AÑO SIEMPRE
+                    d.get('anio_doc', ''),
                     d.get('institucion', ''),
                     d.get('nombre_curso', ''),
                     d.get('duracion_horas', ''),

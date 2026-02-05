@@ -60,7 +60,7 @@ def init_database():
         detalle TEXT NOT NULL,
         institucion TEXT NOT NULL,
         grado TEXT NOT NULL,
-        anio INTEGER,
+        anio_form INTEGER,
         n_folio TEXT,
         FOREIGN KEY (persona_id) REFERENCES datos(id) ON DELETE CASCADE
         )
@@ -88,7 +88,7 @@ def init_database():
         CREATE TABLE IF NOT EXISTS cursos(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         persona_id INTEGER NOT NULL,
-        anio INTEGER,
+        anio_curso INTEGER,
         area_capacitacion TEXT NOT NULL,
         institucion TEXT NOT NULL,
         nombre_capacitacion TEXT NOT NULL,
@@ -131,7 +131,7 @@ def init_database():
         CREATE TABLE IF NOT EXISTS docencia(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         persona_id INTEGER NOT NULL,
-        anio INTEGER,
+        anio_doc INTEGER,
         institucion TEXT NOT NULL,
         nombre_curso TEXT NOT NULL,
         duracion_horas INTEGER,
@@ -632,7 +632,7 @@ def guardar_formulario():
             detalles = request.form.getlist('detalle[]')
             instituciones = request.form.getlist('institucion[]')
             grados = request.form.getlist('grado[]')
-            anios = request.form.getlist('anio[]')
+            anios = request.form.getlist('anio_form[]')
             folios = request.form.getlist('n_folio[]')
 
             for detalle, institucion, grado, anio, folio in zip_longest(detalles, instituciones, grados, anios, folios, fillvalue=""):
@@ -647,7 +647,7 @@ def guardar_formulario():
 
                 cursor.execute(
                     """
-                    INSERT INTO formacion_academica (persona_id, detalle, institucion, grado, anio, n_folio)
+                    INSERT INTO formacion_academica (persona_id, detalle, institucion, grado, anio_form, n_folio)
                     VALUES (?, ?, ?, ?, ?, ?)
                     """,(persona_id, detalle, institucion, grado, 
                         int(anio) if anio.isdigit() else None, 
@@ -681,7 +681,7 @@ def guardar_formulario():
                 """, (persona_id, nombre, puesto, breve, desde if desde else None, hasta if hasta else None, motivo))
 
             #cursos
-            anios_cursos = request.form.getlist('anio[]')
+            anios_cursos = request.form.getlist('anio_curso[]')
             capacitaciones = request.form.getlist('cap[]')
             instituciones_curso = request.form.getlist('inst[]')
             nombres_cap = request.form.getlist('n_cap[]')
@@ -699,7 +699,7 @@ def guardar_formulario():
                 
                 cursor.execute(
                     """
-                    INSERT INTO cursos (persona_id, anio, area_capacitacion, institucion, nombre_capacitacion, duracion_horas)
+                    INSERT INTO cursos (persona_id, anio_curso, area_capacitacion, institucion, nombre_capacitacion, duracion_horas)
                     VALUES (?, ?, ?, ?, ?, ?)
                     """,(persona_id, 
                         int(anio) if anio.isdigit() else None, cap, inst, n_cap, 
@@ -745,7 +745,7 @@ def guardar_formulario():
                         """, (persona_id, idioma, lectura, escritura, conversacion, folio_idioma if folio_idioma else None))
             
             #docencia
-            anios_doc = request.form.getlist('anio_docencia[]')
+            anios_doc = request.form.getlist('anio_doc[]')
             inst_doc = request.form.getlist('institucion_docencia[]')
             nombres_curso = request.form.getlist('nombre_curso[]')
             horas_doc = request.form.getlist('horas_docencia[]')
@@ -764,7 +764,7 @@ def guardar_formulario():
                     continue
 
                 cursor.execute("""
-                    INSERT INTO docencia (persona_id, anio, institucion, nombre_curso, duracion_horas, folio)
+                    INSERT INTO docencia (persona_id, anio_doc, institucion, nombre_curso, duracion_horas, folio)
                     VALUES (?, ?, ?, ?, ?, ?)
                 """, (
                     persona_id,

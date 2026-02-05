@@ -20,6 +20,7 @@ class DetallesPDF(FPDF):
     
     def header(self):
         """Encabezado del documento"""
+        self.image("static/image.png", x=12, y=8, w=40)
         self.set_font('Helvetica', 'B', 14)
         self.cell(0, 10, 'HOJA DE VIDA - RESUMEN', align='C', ln=True)
         self.ln(3)
@@ -175,21 +176,21 @@ def genera_pdf_detalles(persona, experiencia=None, resumen=None, ids_marcados=No
     pdf.section_title('I. DATOS PERSONALES')
     
     # Fila 1
-    pdf.add_labeled_field('Nombres:', persona.get('nombres', ''), 20, 55)
-    pdf.add_labeled_field('Ap. Paterno:', persona.get('ap_pat', ''), 23, 45)
-    pdf.add_labeled_field('Ap. Materno:', persona.get('ap_mat', ''), 23, 45)
+    pdf.add_labeled_field('Nombres:', persona.get('nombres', ''), 17, 45)
+    pdf.add_labeled_field('Ap. Paterno:', persona.get('ap_pat', ''), 22, 40)
+    pdf.add_labeled_field('Ap. Materno:', persona.get('ap_mat', ''), 22, 40)
     pdf.ln(7)
     
     # Fila 2
-    pdf.add_labeled_field('CI:', persona.get('ci', ''), 8, 35)
-    pdf.add_labeled_field('Exp:', persona.get('exp', ''), 10, 18)
-    pdf.add_labeled_field('Estado Civil:', persona.get('est_civil', ''), 25, 50)
+    pdf.add_labeled_field('CI:', persona.get('ci', ''), 8, 54)
+    pdf.add_labeled_field('Exp:', persona.get('exp', ''), 10, 53)
+    pdf.add_labeled_field('Estado Civil:', persona.get('est_civil', ''), 22, 36)
     pdf.ln(7)
     
     # Fila 3
-    pdf.add_labeled_field('Fecha Nac:', persona.get('fecha_nac', ''), 25, 35)
-    pdf.add_labeled_field('Lugar:', persona.get('lugar', ''), 15, 45)
-    pdf.add_labeled_field('Nacionalidad:', persona.get('nacio', ''), 27, 40)
+    pdf.add_labeled_field('Fecha Nac:', persona.get('fecha_nac', ''), 20, 41)
+    pdf.add_labeled_field('Lugar:', persona.get('lugar', ''), 12, 53)
+    pdf.add_labeled_field('Nacionalidad:', persona.get('nacio', ''), 24, 36)
     pdf.ln(7)
     
     # Fila 4
@@ -198,24 +199,18 @@ def genera_pdf_detalles(persona, experiencia=None, resumen=None, ids_marcados=No
     pdf.ln(7)
     
     # Fila 5
-    pdf.add_labeled_field('Grupo Sanguíneo:', persona.get('gr_san', ''), 38, 20)
+    pdf.add_labeled_field('Grupo Sanguíneo:', persona.get('gr_san', ''), 30, 30)
+    pdf.add_labeled_field('Tel. Celular:', persona.get('tcel', ''), 20, 40)
+    pdf.add_labeled_field('Tel. Fijo:', persona.get('tfijo', ''), 17, 40)
     pdf.ln(7)
-    
-    # Fila 6
-    pdf.add_labeled_field('Tel. Celular:', persona.get('tcel', ''), 27, 40)
-    pdf.add_labeled_field('Tel. Fijo:', persona.get('tfijo', ''), 20, 40)
-    pdf.ln(7)
-    
+
     # Fila 7
-    pdf.add_labeled_field('Correo Electrónico:', persona.get('correo', ''), 40, 145)
+    pdf.add_labeled_field('Correo Electrónico:', persona.get('correo', ''), 32, 85)
+    pdf.add_labeled_field('N° Libreta Servicio Militar:', persona.get('n_libser', ''), 43, 25)
     pdf.ln(7)
-    
-    # Fila 8
-    pdf.add_labeled_field('N° Libreta Servicio Militar:', persona.get('n_libser', ''), 60, 60)
-    pdf.ln(10)
-    
+
     # ==================== III. EXPERIENCIA LABORAL ====================
-    pdf.section_title('III. EXPERIENCIA LABORAL')
+    pdf.section_title('II. EXPERIENCIA LABORAL')
 
     if experiencia and len(experiencia) > 0:
         widths = [55, 42, 35, 53]
@@ -234,6 +229,9 @@ def genera_pdf_detalles(persona, experiencia=None, resumen=None, ids_marcados=No
         for exp in experiencia:
             exp_id = exp.get('id')
 
+            if ids_marcados and exp_id not in ids_marcados:
+                continue
+
             nombre = safe_text(exp.get('nombre', ''))
             puesto = safe_text(exp.get('puesto', ''))
             desde = safe_text(exp.get('desde', ''))
@@ -241,45 +239,14 @@ def genera_pdf_detalles(persona, experiencia=None, resumen=None, ids_marcados=No
             periodo = f"{desde} - {hasta}" if desde or hasta else ""
             motivo = safe_text(exp.get('motivo', ''))
 
-            # Verificar si está marcada
-            esta_marcada = True
-            if ids_marcados is not None and len(ids_marcados) > 0:
-                esta_marcada = exp_id in ids_marcados
-
-            # estilos normales o desmarcada
-            if esta_marcada:
-                fill = False
-                fill_color = (255, 255, 255)
-                text_color = (0, 0, 0)
-            else:
-                fill = True
-                fill_color = LIGHT_RED
-                text_color = (153, 0, 0)
-
             # dibujar fila dinámica
             x, y, w_total, h_total = row_multicell(
                 pdf,
                 [nombre, puesto, periodo, motivo],
                 widths,
                 line_height=4.5,
-                aligns=['L', 'L', 'C', 'L'],
-                fill=fill,
-                fill_color=fill_color,
-                text_color=text_color
+                aligns=['L', 'L', 'C', 'L']
             )
-
-            # si NO marcada: tachado centrado dentro de la fila completa
-            if not esta_marcada:
-                linea_y = y + (h_total / 2)
-
-                pdf.set_draw_color(153, 0, 0)
-                pdf.set_line_width(0.7)
-                pdf.line(x + 1, linea_y, x + w_total - 1, linea_y)
-
-                # restaurar estilos
-                pdf.set_draw_color(0, 0, 0)
-                pdf.set_text_color(0, 0, 0)
-                pdf.set_line_width(0.2)
 
     else:
         pdf.set_font('Helvetica', 'I', 9)
@@ -291,7 +258,7 @@ def genera_pdf_detalles(persona, experiencia=None, resumen=None, ids_marcados=No
     if resumen:
         pdf.set_fill_color(227, 242, 253)
         pdf.set_font('Helvetica', 'B', 11)
-        pdf.cell(0, 8, 'RESUMEN DE EXPERIENCIA LABORAL', fill=True, ln=True, border=1)
+        pdf.section_title('III. RESUMEN DE EXPERIENCIA LABORAL')
         pdf.ln(3)
         
         pdf.set_font('Helvetica', '', 10)
